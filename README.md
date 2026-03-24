@@ -25,3 +25,15 @@ Para rodar este projeto na sua máquina, siga os passos abaixo:
 1. **Clone o repositório:**
    ```bash
    git clone https://github.com
+2, **Entre na pasta do projeto:**
+   cd Projeto-univesp-
+
+3, **Crie um ambiente virtual (opcional mais recomendado):** 
+python -m venv venv
+source venv/Scripts/activate  # No Windows
+
+4, **Inicie o servidor**
+python manage.py runserver
+
+✒️ Autores
+**Miguel Fonseca- Desenvolvedor Principal - Miguel009sp**
