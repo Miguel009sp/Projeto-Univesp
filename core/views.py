@@ -6,7 +6,6 @@ from rest_framework import status
 from .models import *
 from .serializers import *
 
-# Create your views here.
 class ListCreatePessoaFisica(ListCreateAPIView):
     def get_queryset(self):
         return PessoaFisica.objects.all()

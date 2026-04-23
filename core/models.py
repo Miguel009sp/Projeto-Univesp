@@ -2,9 +2,11 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 
-# nao e necessario colocar `email`, `senha` e `username` pois o AbstractUser
+# nao e necessario colocar `email`e `senha`  pois o AbstractUser
 # ja faz isso
 # foto de perfil -> so salvamos o path da imagem
+# nome -> pelo `username` nativo do abstract user ser unique por padrao,
+# criar um campo nome e uma boa opcao
 class Usuario(AbstractUser):
 
     ROLE_CHOICES = (
@@ -12,6 +14,7 @@ class Usuario(AbstractUser):
         ('customer', 'Customer')
     )
     
+    nome = models.CharField(max_length=255)
     foto = models.CharField(max_length=255, null=True)
     role = models.CharField(max_length=15, choices=ROLE_CHOICES)
 

@@ -5,6 +5,6 @@ from .views import *
 
 urlpatterns = [   
 
-    # pessoa fisica url
+    # pessoa fisica url (GET e POST)
     path('pessoa_fisica', ListCreatePessoaFisica.as_view())
 ]

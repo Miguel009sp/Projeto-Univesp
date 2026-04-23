@@ -1,0 +1,12 @@
+# necessario a se fazer:
+
+- cadastro de usuarios com role `admin` (por enquanto so ha o CUSTOMER)
+- fazer o codigo de permissao dos usuarios (com base na role)
+- colocar autenticacao JWT 
+- liberar o CORS da api (temporariamente)
+- implementar as tabelas restantes e seus endpoints
+- ver se pode ser legal cadastrar o campo obrigatorio `username` do usuario automaticamente utilizando uuid4
+
+# endpoints
+
+- http://127.0.0.1:8000/api/pessoa_fisica **FUNCIONAL**
