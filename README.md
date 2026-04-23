@@ -25,17 +25,17 @@ Para rodar este projeto na sua máquina, siga os passos abaixo:
 1. **Clone o repositório:**
    ```bash
    git clone https://github.com
-2, **Entre na pasta do projeto:**
+2. **Entre na pasta do projeto:**
    cd Projeto-universidade
 
-3, **Crie um ambiente virtual (opcional mais recomendado):** 
+3. **Crie um ambiente virtual (opcional mais recomendado):** 
 ```python
 python -m venv venv
 source venv/Scripts/activate  # No Windows
 (env) pip install -r requirements # instala as bibliotecas do projeto
 ```
 
-4, **Inicie o servidor**
+4. **Inicie o servidor**
 python manage.py runserver
 
 ✒️ Autores
