@@ -6,7 +6,13 @@
 - liberar o CORS da api (temporariamente)
 - implementar as tabelas restantes e seus endpoints
 - ver se pode ser legal cadastrar o campo obrigatorio `username` do usuario automaticamente utilizando uuid4
+- pensar: os admins devem sempre ser pessoa juridica?
+- filtro: pegar telefones por id do usuario (atualmente esta apenas Telefone.objects.all())
+- filtro: pegar endereco por id do usuario (atualmente esta apenas EnderecoUsuario.objects.all())
 
+- ao registrar uma venda: o status do imovel deve ser = vendido e a data de fechamento = a data em que a venda foi
+concluida
+- exibicao de imagem: as imagens dos campos ImageField ainda nao sao exibidas na url que o django fornece
 # endpoints
 
 - http://127.0.0.1:8000/api/pessoa_fisica **FUNCIONAL**
