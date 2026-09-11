@@ -24,7 +24,6 @@
             margin-bottom: 20px;
             max-width: 400px;
         }
-        /* Ajuste opcional para o campo de descrição ser mais largo */
         .form-group.largo {
             max-width: 600px;
         }
@@ -35,7 +34,6 @@
             color: #212529;
             font-weight: 500;
         }
-        /* Adicionado 'textarea' seletor para herdar os mesmos estilos */
         input[type="text"], select, textarea {
             width: 100%;
             padding: 10px 12px;
@@ -49,19 +47,16 @@
             box-sizing: border-box;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
-        /* Adicionado 'textarea:focus' */
         input[type="text"]:focus, select:focus, textarea:focus {
             border-color: #86b7fe;
             outline: 0;
             box-shadow: 0 0 0 4px rgba(13, 110, 253, .25);
         }
-        /* Estilo específico para a caixa de descrição */
         textarea {
             resize: vertical;
             min-height: 120px;
             font-family: inherit;
         }
-        
         .upload-container {
             position: relative;
             width: 100%;
@@ -97,7 +92,6 @@
             background-color: #e9ecef;
             color: #0d6efd;
         }
-
         .btn-container {
             margin-top: 30px;
             display: flex;
@@ -135,14 +129,6 @@
         .btn-voltar:hover {
             background-color: #5c636a;
         }
-        .btn-excluir {
-            color: #fff;
-            background-color: #dc3545;
-            border-color: #dc3545;
-        }
-        .btn-excluir:hover {
-            background-color: #bb2d3b;
-        }
         .nome-arquivo {
             display: block;
             margin-top: 5px;
@@ -163,12 +149,27 @@
         {% csrf_token %}
 
         <div class="form-group">
+            <label>Responsável / Usuário</label>
+            <select name="usuario" id="usuario">
+                <option value="">-- Selecione o Usuário --</option>
+                {% for u in usuarios %}
+                    <option value="{{ u.id }}" {% if imovel and imovel.user_id == u.id %}selected{% endif %}>
+                        {{ u.nome|default:u.username }} ({% if u.role %}{{ u.get_role_display }}{% else %}Sem Role{% endif %})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
             <label>Tipo do imóvel</label>
             <select name="tipo_imovel">
                 <option {% if imovel and "Casa" in imovel.nome %}selected{% endif %}>Casa</option>
                 <option {% if imovel and "Apartamento" in imovel.nome %}selected{% endif %}>Apartamento</option>
                 <option {% if imovel and "Terreno" in imovel.nome %}selected{% endif %}>Terreno</option>
-                <option {% if imovel and "Comercial" in imovel.nome %}selected{% endif %}>Comercial</option>
+                <option {% if imovel and "Sala Comercial" in imovel.nome %}selected{% endif %}>Sala Comercial</option>
+                <option {% if imovel and "Galpão Comercial" in imovel.nome %}selected{% endif %}>Galpão Comercial</option>
+                <option {% if imovel and "Sítio" in imovel.nome %}selected{% endif %}>Sítio</option>
+                <option {% if imovel and "Chácara" in imovel.nome %}selected{% endif %}>Chácara</option>
             </select>
         </div>
 
@@ -181,7 +182,6 @@
             </select>
         </div>
 
-        <!-- NOVO CAMPO: Número de Referência -->
         <div class="form-group">
             <label>Número de Referência</label>
             <input type="text" name="referencia" id="referencia" value="{{ imovel.referencia|default:'' }}" placeholder="Ex: REF1020">
@@ -228,10 +228,9 @@
             <input type="text" name="estado" id="estado" value="{{ imovel.endereco.sigla_federacao|default:'' }}" class="campo-automatico" placeholder="EX: SP" maxlength="2" style="text-transform: uppercase;" readonly>
         </div>
 
-        <!-- NOVO CAMPO: Descrição do Imóvel -->
         <div class="form-group largo">
             <label>Descrição do Imóvel</label>
-            <textarea name="descricao" id="descricao" placeholder="Digite detalhes sobre o imóvel (quartos, suites, vaga de garagem, etc...)">{{ imovel.descricao|default:'' }}</textarea>
+            <textarea name="descricao" id="descricao" placeholder="Digite detalhes sobre o imóvel (quartos, suítes, vaga de garagem, etc...)">{{ imovel.descricao|default:'' }}</textarea>
         </div>
 
         <div class="form-group">

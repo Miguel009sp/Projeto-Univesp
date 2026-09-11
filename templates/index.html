@@ -1,0 +1,18 @@
+{% extends "admin/index.html" %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    /* Oculta de vez a caixa de Ações Recentes */
+    #content-related {
+        display: none !important;
+    }
+    
+    /* Expande a tabela principal para usar 100% da largura da tela */
+    .dashboard #content, #content {
+        width: 100% !important;
+        float: none !important;
+        margin-right: 0 !important;
+    }
+</style>
+{% endblock %}

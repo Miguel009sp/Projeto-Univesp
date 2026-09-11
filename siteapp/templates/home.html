@@ -7,7 +7,7 @@
     <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bragatto Imóveis - Painel</title>
-    <!-- Bootstrap Oficial via Link Direto Sem Trava de Redes -->
+    <!-- Bootstrap Oficial -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -72,7 +72,10 @@
     <nav class="navbar navbar-topo navbar-dark p-3">
         <div class="container position-relative d-flex justify-content-center align-items-center">
             <span class="navbar-brand m-0 h1 fw-bold text-white text-center">🏠 Bragatto Imóveis</span>
-            <a href="{% url 'logout' %}" class="btn btn-light btn-sm fw-bold px-3 position-absolute end-0 me-3">Sair</a>
+            <div class="position-absolute end-0 me-3 d-flex gap-2">
+                <a href="/django-admin/" target="_blank" class="btn btn-outline-light btn-sm fw-bold px-3">⚙️ Admin</a>
+                <a href="{% url 'logout' %}" class="btn btn-light btn-sm fw-bold px-3">Sair</a>
+            </div>
         </div>
     </nav>
 
@@ -96,43 +99,56 @@
             <p class="text-muted fs-5">Painel de Controle Administrativo</p>
         </div>
 
-        <!-- GRID 2x2 CENTRALIZADO -->
+        <!-- GRID 2x2 ORIGINAL + CARD DE ADMIN DESTACADO -->
         <div class="row justify-content-center g-4">
             <div class="col-md-5">
-                <div class="caixa-modulo">
-                    <h3 class="titulo-caixa">🔍 Painel de Busca</h3>
-                    <p class="descricao-caixa">Consulte, filtre por valores, edite informações ou exclua registros de
-                        imóveis cadastrados.</p>
-                    <a href="{% url 'buscar_imoveis' %}" class="btn btn-primary btn-premium">Buscar Imóveis</a>
+                <div class="caixa-modulo h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <h3 class="titulo-caixa">🔍 Painel de Busca</h3>
+                        <p class="descricao-caixa">Consulte, filtre por valores, edite informações ou exclua registros de imóveis cadastrados.</p>
+                    </div>
+                    <a href="{% url 'buscar_imoveis' %}" class="btn btn-primary btn-premium mt-auto">Buscar Imóveis</a>
                 </div>
             </div>
 
             <div class="col-md-5">
-                <div class="caixa-modulo">
-                    <h3 class="titulo-caixa">🏗️ Cadastrar Imóvel</h3>
-                    <p class="descricao-caixa">Insira novas unidades ao banco de dados com preenchimento automatizado
-                        pelo CEP.</p>
-                    <a href="{% url 'cadastro_imoveis' %}" class="btn btn-warning btn-premium text-dark">Novo Imóvel</a>
+                <div class="caixa-modulo h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <h3 class="titulo-caixa">🏗️ Cadastrar Imóvel</h3>
+                        <p class="descricao-caixa">Insira novas unidades ao banco de dados com preenchimento automatizado pelo CEP.</p>
+                    </div>
+                    <a href="{% url 'cadastro_imoveis' %}" class="btn btn-warning btn-premium text-dark mt-auto">Novo Imóvel</a>
                 </div>
             </div>
 
             <div class="col-md-5">
-                <div class="caixa-modulo">
-                    <h3 class="titulo-caixa">👤 Cadastrar Proprietário</h3>
-                    <p class="descricao-caixa">Gerencie e registre novos proprietários vinculando nomes, telefones e CPF
-                        de contato.</p>
-                    <a href="{% url 'cadastro_proprietario' %}" class="btn btn-success btn-premium">Novo
-                        Proprietário</a>
+                <div class="caixa-modulo h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <h3 class="titulo-caixa">👤 Cadastrar Proprietário</h3>
+                        <p class="descricao-caixa">Gerencie e registre novos proprietários vinculando nomes, telefones e CPF de contato.</p>
+                    </div>
+                    <a href="{% url 'cadastro_proprietario' %}" class="btn btn-success btn-premium mt-auto">Novo Proprietário</a>
                 </div>
             </div>
 
             <div class="col-md-5">
-                <div class="caixa-modulo">
-                    <h3 class="titulo-caixa">💼 Cadastrar Comprador</h3>
-                    <p class="descricao-caixa">Adicione perfis de compradores e define filtros e faixas de preço de
-                        interesse.</p>
-                    <a href="{% url 'cadastro_comprador' %}" class="btn btn-info btn-premium text-white">Novo
-                        Comprador</a>
+                <div class="caixa-modulo h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <h3 class="titulo-caixa">💼 Cadastrar Comprador</h3>
+                        <p class="descricao-caixa">Adicione perfis de compradores e define filtros e faixas de preço de interesse.</p>
+                    </div>
+                    <a href="{% url 'cadastro_comprador' %}" class="btn btn-info btn-premium text-white mt-auto">Novo Comprador</a>
+                </div>
+            </div>
+
+            <!-- CARD ADMIN DENTRO DA GRADE (LARGURA DUPLA CENTRALIZADA) -->
+            <div class="col-md-10">
+                <div class="caixa-modulo d-flex flex-column flex-md-row align-items-center justify-content-between text-start p-4">
+                    <div class="mb-3 mb-md-0">
+                        <h3 class="titulo-caixa m-0">⚙️ Painel Avançado do Admin</h3>
+                        <p class="descricao-caixa m-0" style="min-height: auto;">Acesse diretamente a gestão do banco de dados, vendas e permissões de usuários do Django.</p>
+                    </div>
+                    <a href="/django-admin/" target="_blank" class="btn btn-dark btn-premium ms-md-4" style="width: auto; min-width: 200px;">Acessar Admin</a>
                 </div>
             </div>
         </div>
@@ -145,11 +161,7 @@
         </div>
     </footer>
 
-    <!-- essa parte nao estava nem sendo carregada pelo browser.
-    o trecho `<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">`
-    já é suficiente.
-    caso necessário, ajuste aqui. -->
-    <!-- <script src="https://jsdelivr.net"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
