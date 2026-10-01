@@ -5,13 +5,15 @@ from django.contrib.auth.models import AbstractUser
 
 class Usuario(AbstractUser):
     ROLE_CHOICES = (
-        ('admin', 'Admin'),
-        ('customer', 'Customer')
+        ('admin', 'Administrador'),
+        ('corretor', 'Corretor / Vendedor'),
+        ('proprietario', 'Proprietário'),
+        ('comprador', 'Comprador'),
     )
     
     nome = models.CharField(max_length=255)
     foto = models.ImageField(upload_to='usuario/profile', max_length=255, null=True, blank=True)
-    role = models.CharField(max_length=15, choices=ROLE_CHOICES)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='comprador')
 
 class PessoaFisica(Usuario):
     cpf = models.CharField(max_length=14, unique=True)
@@ -48,10 +50,7 @@ class Imovel(models.Model):
     )
 
     nome = models.CharField(max_length=255)
-    
-    # NOVO CAMPO: Adicionado para guardar o número de referência do imóvel
     referencia = models.CharField(max_length=50, blank=True, null=True, verbose_name="Número de Referência")
-    
     descricao = models.TextField(blank=True, null=True)
     foto_principal = models.ImageField(upload_to='imovel/main_pic', max_length=255, null=True, blank=True)
     
@@ -61,7 +60,7 @@ class Imovel(models.Model):
     # Campo para salvar o CPF/CNPJ digitado no cadastro/edição
     proprietario_documento = models.CharField(max_length=18, null=True, blank=True)
     
-    valor_original = models.DecimalField(max_digits=12, decimal_places=2)
+    valor_original = models.FloatField(null=True, blank=True)
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='disponivel')
 
     def __str__(self):
@@ -135,3 +134,4 @@ class Venda(models.Model):
     data_fechamento = models.DateField(null=True, blank=True)
     observacoes = models.TextField(blank=True)
     status = models.CharField(max_length=15, choices=STATUS_VENDA, default='executando')
+    
