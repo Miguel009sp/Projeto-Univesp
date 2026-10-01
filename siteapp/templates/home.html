@@ -7,72 +7,28 @@
     <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bragatto Imóveis - Painel</title>
-    <!-- Bootstrap Oficial via Link Direto Sem Trava de Redes -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f3f4f6;
-            color: #1f2937;
-        }
-
-        .navbar-topo {
-            background-color: #0d6efd;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .caixa-modulo {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            text-align: center;
-        }
-
-        .caixa-modulo:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .titulo-caixa {
-            font-size: 20px;
-            font-weight: 600;
-            color: #111827;
-            margin-bottom: 10px;
-        }
-
-        .descricao-caixa {
-            font-size: 14px;
-            color: #6b7280;
-            margin-bottom: 20px;
-            min-height: 42px;
-        }
-
-        .btn-premium {
-            font-weight: 600;
-            padding: 10px 24px;
-            border-radius: 6px;
-            font-size: 15px;
-            width: 100%;
-        }
-
-        footer {
-            background-color: #111827;
-            color: #9ca3af;
-            font-size: 13px;
-        }
-    </style>
+    <!-- Bootstrap Oficial -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Fonte serifada usada só nos títulos da home, para dar o ar mais refinado -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&display=swap" rel="stylesheet">
+    <link href="{% static 'siteapp/css/estilo.css' %}" rel="stylesheet">
 </head>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100 pagina-home">
 
     <!-- BARRA DE NAVEGAÇÃO CENTRALIZADA -->
     <nav class="navbar navbar-topo navbar-dark p-3">
         <div class="container position-relative d-flex justify-content-center align-items-center">
-            <span class="navbar-brand m-0 h1 fw-bold text-white text-center">🏠 Bragatto Imóveis</span>
-            <a href="{% url 'logout' %}" class="btn btn-light btn-sm fw-bold px-3 position-absolute end-0 me-3">Sair</a>
+            <span class="marca-home d-flex align-items-center">
+                <span class="marca-selo" aria-hidden="true">🏠</span>
+                Bragatto Imóveis
+            </span>
+            <div class="position-absolute end-0 me-3 d-flex gap-2">
+                <a href="/django-admin/" target="_blank" class="btn btn-outline-light btn-sm fw-bold px-3">⚙️ Admin</a>
+                <a href="{% url 'logout' %}" class="btn btn-light btn-sm fw-bold px-3">Sair</a>
+            </div>
         </div>
     </nav>
 
@@ -85,54 +41,93 @@
                 <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert"
                     style="background-color: #d1e7dd; color: #0f5132; font-weight: 500;">
                     ✨ {{ messages|last }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
                 </div>
             </div>
         </div>
         {% endif %}
 
-        <div class="text-center mb-5">
-            <h1 class="fw-bold" style="color: #111827; font-size: 36px; letter-spacing: -0.5px;">Bragatto Imóveis</h1>
-            <p class="text-muted fs-5">Painel de Controle Administrativo</p>
+        <div class="hero-home">
+            <p class="saudacao" id="saudacao-dinamica">Bem-vindo(a) de volta</p>
+            <h1>Bragatto Imóveis</h1>
+            <div class="linha-dourada" aria-hidden="true"></div>
+            <p class="fs-6">Painel de controle administrativo — <span id="data-hoje"></span></p>
         </div>
 
-        <!-- GRID 2x2 CENTRALIZADO -->
+        <!-- FAIXA DE INDICADORES AO VIVO — preenchida via fetch em /api/imoveis/ -->
+        <div class="faixa-indicadores" id="faixa-indicadores" role="status" aria-live="polite">
+            <div class="indicador">
+                <div class="indicador-numero" data-indicador="total">–</div>
+                <div class="indicador-rotulo">Imóveis cadastrados</div>
+            </div>
+            <div class="indicador indicador-dourado">
+                <div class="indicador-numero" data-indicador="disponivel">–</div>
+                <div class="indicador-rotulo">Disponíveis</div>
+            </div>
+            <div class="indicador">
+                <div class="indicador-numero" data-indicador="vendido">–</div>
+                <div class="indicador-rotulo">Vendidos</div>
+            </div>
+            <div class="indicador">
+                <div class="indicador-numero" data-indicador="indisponivel">–</div>
+                <div class="indicador-rotulo">Indisponíveis</div>
+            </div>
+        </div>
+
+        <!-- GRID 2x2 ORIGINAL + CARD DE ADMIN DESTACADO -->
         <div class="row justify-content-center g-4">
             <div class="col-md-5">
-                <div class="caixa-modulo">
-                    <h3 class="titulo-caixa">🔍 Painel de Busca</h3>
-                    <p class="descricao-caixa">Consulte, filtre por valores, edite informações ou exclua registros de
-                        imóveis cadastrados.</p>
-                    <a href="{% url 'buscar_imoveis' %}" class="btn btn-primary btn-premium">Buscar Imóveis</a>
+                <div class="caixa-modulo h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="icone-badge" aria-hidden="true">🔍</div>
+                        <h3 class="titulo-caixa">Painel de Busca</h3>
+                        <p class="descricao-caixa">Consulte, filtre por valores, edite informações ou exclua registros de imóveis cadastrados.</p>
+                    </div>
+                    <a href="{% url 'buscar_imoveis' %}" class="btn btn-premium mt-auto">Buscar Imóveis</a>
                 </div>
             </div>
 
             <div class="col-md-5">
-                <div class="caixa-modulo">
-                    <h3 class="titulo-caixa">🏗️ Cadastrar Imóvel</h3>
-                    <p class="descricao-caixa">Insira novas unidades ao banco de dados com preenchimento automatizado
-                        pelo CEP.</p>
-                    <a href="{% url 'cadastro_imoveis' %}" class="btn btn-warning btn-premium text-dark">Novo Imóvel</a>
+                <div class="caixa-modulo h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="icone-badge" aria-hidden="true">🏗️</div>
+                        <h3 class="titulo-caixa">Cadastrar Imóvel</h3>
+                        <p class="descricao-caixa">Insira novas unidades ao banco de dados com preenchimento automatizado pelo CEP.</p>
+                    </div>
+                    <a href="{% url 'cadastro_imoveis' %}" class="btn btn-premium mt-auto">Novo Imóvel</a>
                 </div>
             </div>
 
             <div class="col-md-5">
-                <div class="caixa-modulo">
-                    <h3 class="titulo-caixa">👤 Cadastrar Proprietário</h3>
-                    <p class="descricao-caixa">Gerencie e registre novos proprietários vinculando nomes, telefones e CPF
-                        de contato.</p>
-                    <a href="{% url 'cadastro_proprietario' %}" class="btn btn-success btn-premium">Novo
-                        Proprietário</a>
+                <div class="caixa-modulo h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="icone-badge" aria-hidden="true">👤</div>
+                        <h3 class="titulo-caixa">Cadastrar Proprietário</h3>
+                        <p class="descricao-caixa">Gerencie e registre novos proprietários vinculando nomes, telefones e CPF de contato.</p>
+                    </div>
+                    <a href="{% url 'cadastro_proprietario' %}" class="btn btn-premium mt-auto">Novo Proprietário</a>
                 </div>
             </div>
 
             <div class="col-md-5">
-                <div class="caixa-modulo">
-                    <h3 class="titulo-caixa">💼 Cadastrar Comprador</h3>
-                    <p class="descricao-caixa">Adicione perfis de compradores e define filtros e faixas de preço de
-                        interesse.</p>
-                    <a href="{% url 'cadastro_comprador' %}" class="btn btn-info btn-premium text-white">Novo
-                        Comprador</a>
+                <div class="caixa-modulo h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="icone-badge" aria-hidden="true">💼</div>
+                        <h3 class="titulo-caixa">Cadastrar Comprador</h3>
+                        <p class="descricao-caixa">Adicione perfis de compradores e defina filtros e faixas de preço de interesse.</p>
+                    </div>
+                    <a href="{% url 'cadastro_comprador' %}" class="btn btn-premium mt-auto">Novo Comprador</a>
+                </div>
+            </div>
+
+            <!-- CARD ADMIN DENTRO DA GRADE (LARGURA DUPLA CENTRALIZADA) -->
+            <div class="col-md-10">
+                <div class="caixa-modulo caixa-admin d-flex flex-column flex-md-row align-items-center justify-content-between text-start p-4">
+                    <div class="mb-3 mb-md-0">
+                        <h3 class="titulo-caixa m-0">Painel Avançado do Admin</h3>
+                        <p class="descricao-caixa m-0" style="min-height: auto;">Acesse diretamente a gestão do banco de dados, vendas e permissões de usuários do Django.</p>
+                    </div>
+                    <a href="/django-admin/" target="_blank" class="btn btn-premium ms-md-4" style="width: auto; min-width: 200px;">Acessar Admin</a>
                 </div>
             </div>
         </div>
@@ -145,11 +140,85 @@
         </div>
     </footer>
 
-    <!-- essa parte nao estava nem sendo carregada pelo browser.
-    o trecho `<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">`
-    já é suficiente.
-    caso necessário, ajuste aqui. -->
-    <!-- <script src="https://jsdelivr.net"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // -----------------------------------------------------------------
+        // Saudação dinâmica + data de hoje por extenso
+        // -----------------------------------------------------------------
+        (function () {
+            const hora = new Date().getHours();
+            let saudacao = 'Boa noite';
+            if (hora >= 5 && hora < 12) saudacao = 'Bom dia';
+            else if (hora >= 12 && hora < 18) saudacao = 'Boa tarde';
+            document.getElementById('saudacao-dinamica').textContent = saudacao + ', bem-vindo(a) de volta';
+
+            const hoje = new Intl.DateTimeFormat('pt-BR', {
+                weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+            }).format(new Date());
+            document.getElementById('data-hoje').textContent = hoje.charAt(0).toUpperCase() + hoje.slice(1);
+        })();
+
+        // -----------------------------------------------------------------
+        // Indicadores ao vivo — busca os imóveis na API interna (/api/imoveis/)
+        // e conta por status, com uma pequena animação de contagem.
+        // -----------------------------------------------------------------
+        (function () {
+            const faixa = document.getElementById('faixa-indicadores');
+
+            function animarNumero(elemento, valorFinal) {
+                const duracao = 700;
+                const inicio = performance.now();
+                function passo(agora) {
+                    const progresso = Math.min((agora - inicio) / duracao, 1);
+                    elemento.textContent = Math.round(progresso * valorFinal);
+                    if (progresso < 1) requestAnimationFrame(passo);
+                }
+                requestAnimationFrame(passo);
+            }
+
+            fetch('/api/imoveis/')
+                .then(resposta => {
+                    if (!resposta.ok) throw new Error('Erro ' + resposta.status);
+                    return resposta.json();
+                })
+                .then(dados => {
+                    const imoveis = Array.isArray(dados) ? dados : (dados.results || []);
+                    const contagem = { total: imoveis.length, disponivel: 0, vendido: 0, indisponivel: 0 };
+                    imoveis.forEach(imovel => {
+                        if (contagem[imovel.status] !== undefined) contagem[imovel.status] += 1;
+                    });
+
+                    faixa.querySelectorAll('[data-indicador]').forEach(elemento => {
+                        const chave = elemento.getAttribute('data-indicador');
+                        animarNumero(elemento, contagem[chave] ?? 0);
+                    });
+                })
+                .catch(erro => {
+                    console.error('Não foi possível carregar os indicadores:', erro);
+                    faixa.querySelectorAll('[data-indicador]').forEach(el => { el.textContent = '—'; });
+                });
+        })();
+
+        // -----------------------------------------------------------------
+        // Entrada suave dos cards de módulo ao aparecerem na tela
+        // -----------------------------------------------------------------
+        (function () {
+            const cards = document.querySelectorAll('.caixa-modulo');
+            if (!('IntersectionObserver' in window)) {
+                cards.forEach(card => card.classList.add('revelado'));
+                return;
+            }
+            const observador = new IntersectionObserver((entradas) => {
+                entradas.forEach((entrada, indice) => {
+                    if (entrada.isIntersecting) {
+                        setTimeout(() => entrada.target.classList.add('revelado'), indice * 80);
+                        observador.unobserve(entrada.target);
+                    }
+                });
+            }, { threshold: 0.15 });
+            cards.forEach(card => observador.observe(card));
+        })();
+    </script>
 </body>
 
 </html>

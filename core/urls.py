@@ -11,6 +11,7 @@ from rest_framework_simplejwt.views import (
 from .views import (
     TerrenoViewSet, CasaViewSet, SalaComercialViewSet, GalpaoComercialViewSet,
     SitioViewSet, ChacaraViewSet, ApartamentoViewSet, VendaViewSet, FotosImovelViewSet,
+    ImovelPublicoViewSet,
     ListCreatePessoaFisica, ListCreatePessoaJuridica, ListAllUsers, ListCreateTelefone,
     ListCreateEnderecoUsuario
 )
@@ -24,6 +25,7 @@ router.register(r'galpoes-comerciais', viewset=GalpaoComercialViewSet, basename=
 router.register(r'sitios', viewset=SitioViewSet, basename='sitio')
 router.register(r'chacaras', viewset=ChacaraViewSet, basename='chacara')
 router.register(r'apartamentos', viewset=ApartamentoViewSet, basename='apartamento')
+router.register(r'imoveis', viewset=ImovelPublicoViewSet, basename='imovel')
 router.register(r'vendas', viewset=VendaViewSet)
 router.register(r'fotos-imovel', viewset=FotosImovelViewSet)
 

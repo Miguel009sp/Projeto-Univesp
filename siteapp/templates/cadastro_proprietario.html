@@ -6,59 +6,11 @@
     <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastrar Proprietário</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f8f9fa;
-            color: #212529;
-            padding-bottom: 50px;
-        }
-        .container-cadastro {
-            max-width: 600px;
-            margin: 50px auto;
-        }
-        .card-cadastro {
-            background: #ffffff;
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-        h2 {
-            color: #0d6efd;
-            font-size: 28px;
-            font-weight: 500;
-        }
-        .form-label {
-            font-weight: 500;
-            color: #495057;
-            font-size: 15px;
-        }
-        .form-control {
-            padding: 10px 12px;
-            border-radius: 6px;
-            border: 1px solid #ced4da;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .form-control:focus {
-            border-color: #86b7fe;
-            box-shadow: 0 0 0 4px rgba(13, 110, 253, .25);
-        }
-        .btn-container {
-            margin-top: 25px;
-            display: flex;
-            gap: 10px;
-        }
-        .btn-acao {
-            font-weight: 600;
-            padding: 10px 24px;
-            border-radius: 6px;
-            font-size: 15px;
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'siteapp/css/estilo.css' %}" rel="stylesheet">
 </head>
 
-<body>
+<body class="pagina-cadastro">
 
     <div class="container container-cadastro px-3">
         
@@ -73,7 +25,7 @@
                             {% else %}ℹ️{% endif %}
                         </span>
                         <div>{{ message }}</div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
                     </div>
                 {% endfor %}
             </div>
@@ -87,23 +39,23 @@
                 {% csrf_token %}
 
                 <div class="mb-3">
-                    <label class="form-label">Nome completo</label>
-                    <input type="text" class="form-control" name="nome" placeholder="Ex: João da Silva" required>
+                    <label for="nome" class="form-label">Nome completo</label>
+                    <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex: João da Silva" required>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">CPF</label>
-                    <input type="text" class="form-control" name="cpf" oninput="mascaraCPF(this)" maxlength="14" placeholder="000.000.000-00" required>
+                    <label for="cpf" class="form-label">CPF</label>
+                    <input type="text" class="form-control" id="cpf" name="cpf" oninput="mascaraCPF(this)" maxlength="14" placeholder="000.000.000-00" required>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Telefone</label>
-                    <input type="text" class="form-control" name="telefone" oninput="mascaraTelefone(this)" maxlength="15" placeholder="(00) 00000-0000" required>
+                    <label for="telefone" class="form-label">Telefone</label>
+                    <input type="text" class="form-control" id="telefone" name="telefone" oninput="mascaraTelefone(this)" maxlength="15" placeholder="(00) 00000-0000" required>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Endereço de Residência</label>
-                    <input type="text" class="form-control" name="endereco" placeholder="Rua, número, bairro e cidade">
+                    <label for="endereco" class="form-label">Endereço de Residência</label>
+                    <input type="text" class="form-control" id="endereco" name="endereco" placeholder="Rua, número, bairro e cidade">
                 </div>
 
                 <!-- CONTAINER DE BOTÕES -->

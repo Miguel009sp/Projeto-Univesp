@@ -1,16 +1,627 @@
-      
-      * {
-            margin: 0;
-            padding: 0;
+/* ==============================================================
+   Bragatto Imóveis — estilos compartilhados do front-end
+   Antes, cada template tinha seu próprio <style> (às vezes
+   repetindo as mesmas regras, às vezes divergindo). Esse arquivo
+   único é carregado por todas as telas do siteapp.
+   ============================================================== */
 
-        }
-        h1 {
-            color: #201585;
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-        
-        b {
-            font-size: 1rem;
-        }
- 
+:root {
+    --cor-primaria: #0d6efd;
+    --cor-perigo: #dc3545;
+    --cor-texto: #212529;
+    --cor-texto-suave: #6c757d;
+    --cor-texto-rotulo: #495057;
+    --cor-sucesso: #198754;
+    --cor-fundo-pagina: #f8f9fa;
+    --cor-borda: #e9ecef;
+
+    /* Paleta usada só na home (painel administrativo) */
+    --home-marinho: #0f1b2d;
+    --home-marinho-claro: #1c2f4a;
+    --home-dourado: #c9a24b;
+    --home-dourado-claro: #e4c884;
+    --home-fundo: #f7f5f1;
+    --home-texto-suave: #6b7280;
+}
+
+body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--cor-texto);
+}
+
+h1, h2 {
+    color: var(--cor-primaria);
+    font-weight: 500;
+}
+
+/* Páginas de cadastro simples (comprador/proprietário) usam fundo cinza claro */
+.pagina-cadastro {
+    background-color: var(--cor-fundo-pagina);
+    color: var(--cor-texto);
+    padding-bottom: 50px;
+}
+
+/* ==============================================================
+   HOME — dashboard administrativo (visual refinado)
+   ============================================================== */
+.pagina-home {
+    background-color: var(--home-fundo);
+}
+
+.pagina-home .navbar-topo {
+    background: linear-gradient(120deg, var(--home-marinho) 0%, var(--home-marinho-claro) 100%);
+    border-bottom: 2px solid var(--home-dourado);
+    box-shadow: 0 4px 16px rgba(15, 27, 45, 0.25);
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+.marca-home {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: #ffffff;
+}
+
+.marca-home .marca-selo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--home-dourado-claro), var(--home-dourado));
+    color: var(--home-marinho);
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+.pagina-home .navbar-topo .btn-outline-light {
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.pagina-home .navbar-topo .btn-light {
+    background-color: var(--home-dourado);
+    border-color: var(--home-dourado);
+    color: var(--home-marinho);
+}
+
+.pagina-home .navbar-topo .btn-light:hover {
+    background-color: var(--home-dourado-claro);
+    border-color: var(--home-dourado-claro);
+}
+
+.hero-home {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.hero-home .saudacao {
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--home-dourado);
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.hero-home h1 {
+    font-family: "Fraunces", Georgia, serif;
+    color: var(--home-marinho);
+    font-size: 38px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    margin-bottom: 8px;
+}
+
+.hero-home .linha-dourada {
+    width: 70px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--home-dourado), var(--home-dourado-claro));
+    border-radius: 3px;
+    margin: 18px auto;
+}
+
+.hero-home p {
+    color: var(--home-texto-suave);
+}
+
+/* Faixa de indicadores ao vivo (alimentada por /api/imoveis/ via fetch) */
+.faixa-indicadores {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 44px;
+}
+
+.indicador {
+    background: #ffffff;
+    border: 1px solid var(--cor-borda);
+    border-radius: 14px;
+    padding: 18px 28px;
+    min-width: 160px;
+    text-align: center;
+    box-shadow: 0 4px 10px -4px rgba(15, 27, 45, 0.12);
+}
+
+.indicador .indicador-numero {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 30px;
+    font-weight: 600;
+    color: var(--home-marinho);
+    line-height: 1;
+}
+
+.indicador .indicador-rotulo {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--home-texto-suave);
+    margin-top: 6px;
+}
+
+.indicador.indicador-dourado .indicador-numero {
+    color: var(--home-dourado);
+}
+
+/* Cards de módulo */
+.caixa-modulo {
+    background: #ffffff;
+    border: 1px solid var(--cor-borda);
+    border-radius: 14px;
+    padding: 32px;
+    box-shadow: 0 4px 6px -1px rgba(15, 27, 45, 0.05);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(16px);
+}
+
+.caixa-modulo.revelado {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.caixa-modulo:hover,
+.caixa-modulo:focus-within {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 28px -12px rgba(15, 27, 45, 0.22);
+    border-color: var(--home-dourado-claro);
+}
+
+.icone-badge {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    margin: 0 auto 16px;
+    background: linear-gradient(135deg, var(--home-marinho-claro), var(--home-marinho));
+    box-shadow: 0 6px 14px -6px rgba(15, 27, 45, 0.5);
+}
+
+.titulo-caixa {
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--home-marinho);
+    margin-bottom: 10px;
+}
+
+.descricao-caixa {
+    font-size: 14px;
+    color: var(--cor-texto-suave);
+    margin-bottom: 20px;
+    min-height: 42px;
+}
+
+.btn-premium {
+    font-weight: 600;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 15px;
+    width: 100%;
+    background-color: var(--home-marinho);
+    border-color: var(--home-marinho);
+    color: #fff;
+    transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.btn-premium:hover {
+    background-color: var(--home-marinho-claro);
+    color: #fff;
+}
+
+.btn-premium:active {
+    transform: scale(0.98);
+}
+
+/* O card de admin se destaca com o acabamento escuro + dourado */
+.caixa-admin {
+    background: linear-gradient(120deg, var(--home-marinho) 0%, var(--home-marinho-claro) 100%);
+    border: 1px solid var(--home-marinho);
+}
+
+.caixa-admin .titulo-caixa,
+.caixa-admin p {
+    color: #fff;
+}
+
+.caixa-admin .descricao-caixa {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.caixa-admin .btn-premium {
+    background-color: var(--home-dourado);
+    border-color: var(--home-dourado);
+    color: var(--home-marinho);
+}
+
+.caixa-admin .btn-premium:hover {
+    background-color: var(--home-dourado-claro);
+    border-color: var(--home-dourado-claro);
+}
+
+.pagina-home footer {
+    background-color: var(--home-marinho);
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 13px;
+    border-top: 2px solid var(--home-dourado);
+}
+
+/* Quem prefere menos movimento na tela não recebe a animação de entrada */
+@media (prefers-reduced-motion: reduce) {
+    .caixa-modulo {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}
+
+/* ==============================================================
+   CADASTRO DE COMPRADOR / PROPRIETÁRIO — cartão de formulário
+   ============================================================== */
+.container-cadastro {
+    max-width: 600px;
+    margin: 50px auto;
+}
+
+.card-cadastro {
+    background: #ffffff;
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.card-cadastro .form-label {
+    font-weight: 500;
+    color: var(--cor-texto-rotulo);
+    font-size: 15px;
+}
+
+.card-cadastro .form-control {
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.card-cadastro .form-control:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, .25);
+}
+
+.btn-container {
+    margin-top: 25px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn-acao {
+    font-weight: 600;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+/* Botão de excluir em forma de botão Bootstrap sólido (ex: editar comprador) */
+.btn-acao.btn-excluir {
+    color: #fff;
+    background-color: var(--cor-perigo);
+    border-color: var(--cor-perigo);
+}
+
+.btn-acao.btn-excluir:hover {
+    background-color: #bb2d3b;
+}
+
+/* ==============================================================
+   CADASTRO / EDIÇÃO DE IMÓVEL — formulário mais denso, não usa
+   os componentes do Bootstrap
+   ============================================================== */
+.form-imovel {
+    margin: 30px auto;
+    max-width: 1200px;
+    padding: 0 20px;
+    background-color: #ffffff;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    max-width: 400px;
+}
+
+.form-group.largo {
+    max-width: 600px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 16px;
+    color: var(--cor-texto);
+    font-weight: 500;
+}
+
+.form-group input[type="text"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--cor-texto);
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input[type="text"]:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, .25);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+}
+
+.campo-automatico {
+    background-color: #f1f3f5 !important;
+}
+
+.upload-container {
+    position: relative;
+    width: 100%;
+}
+
+.input-file-oculto {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.botao-upload-custom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 6px;
+    color: #495057;
+    font-size: 15px;
+    text-align: center;
+}
+
+.upload-container:hover .botao-upload-custom,
+.upload-container:focus-within .botao-upload-custom {
+    border-color: var(--cor-primaria);
+    background-color: #e9ecef;
+    color: var(--cor-primaria);
+}
+
+.nome-arquivo {
+    display: block;
+    margin-top: 5px;
+    font-size: 13px;
+    color: var(--cor-texto-suave);
+    font-style: italic;
+}
+
+.form-imovel .btn {
+    display: inline-block;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    cursor: pointer;
+    border: 1px solid transparent;
+    padding: 10px 30px;
+    font-size: 16px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.btn-salvar {
+    color: #fff;
+    background-color: var(--cor-sucesso);
+    border-color: var(--cor-sucesso);
+}
+
+.btn-salvar:hover {
+    background-color: #157347;
+}
+
+.btn-voltar {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-voltar:hover {
+    background-color: #5c636a;
+}
+
+/* ==============================================================
+   BUSCA DE IMÓVEIS — filtros e grade de cards
+   ============================================================== */
+.secao-filtros {
+    background-color: #f8f9fa;
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.secao-filtros .form-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--cor-texto-rotulo);
+    margin-bottom: 6px;
+}
+
+.card-imovel-custom {
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.card-imovel-custom:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.card-imovel-custom:focus-within {
+    outline: 3px solid var(--cor-primaria);
+    outline-offset: 2px;
+}
+
+.wrapper-foto-imovel {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+    background-color: #f1f3f5;
+}
+
+.img-card-imovel {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.card-body-custom {
+    padding: 15px;
+    flex-grow: 1;
+}
+
+.titulo-imovel {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #212529;
+}
+
+.titulo-imovel a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.info-endereco {
+    font-size: 13px;
+    color: var(--cor-texto-suave);
+    margin-bottom: 2px;
+}
+
+.preco-tag {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--cor-sucesso);
+    margin: 10px 0;
+}
+
+.badge-status {
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 30px;
+    text-transform: uppercase;
+}
+
+.status-disponivel { background-color: #e6f4ea; color: #137333; }
+.status-indisponivel { background-color: #fff4e5; color: #b95000; }
+.status-vendido { background-color: #f1f3f5; color: #495057; }
+
+.acoes-card {
+    border-top: 1px solid #f1f3f5;
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fcfcfc;
+}
+
+/* Mantém esses links clicáveis por cima do link que cobre o card inteiro (stretched-link) */
+.acoes-card a {
+    position: relative;
+    z-index: 2;
+}
+
+.acoes-card .btn-editar {
+    font-size: 13px;
+    color: var(--cor-primaria);
+    text-decoration: none;
+    font-weight: 600;
+    border: 1px solid var(--cor-primaria);
+    padding: 4px 12px;
+    border-radius: 6px;
+    transition: 0.2s;
+}
+
+.acoes-card .btn-editar:hover {
+    background-color: var(--cor-primaria);
+    color: white;
+}
+
+/* Antes essa regra usava borda azul (copiada do btn-editar) e faltava o "."
+   inicial no seletor ":hover", então o hover nunca era aplicado. */
+.acoes-card .btn-excluir {
+    font-size: 13px;
+    color: var(--cor-perigo);
+    text-decoration: none;
+    font-weight: 600;
+    border: 1px solid var(--cor-perigo);
+    padding: 4px 12px;
+    border-radius: 6px;
+    transition: 0.2s;
+}
+
+.acoes-card .btn-excluir:hover {
+    background-color: var(--cor-perigo);
+    color: white;
+}
