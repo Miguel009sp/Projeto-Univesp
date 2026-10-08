@@ -1,3 +1,4 @@
+
 import re
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -151,42 +152,38 @@ def cadastro_imoveis_view(request, pk=None):
         # DADOS BÁSICOS
         # ----------------------------------------------------------------------
 
-        tipo = request.POST.get(
-            'tipo_imovel',
-            ''
-        ).strip()
-
+        tipo = request.POST.get('tipo_imovel', '').strip()
         status = request.POST.get('status')
         referencia = request.POST.get('referencia')
         valor_da_tela = request.POST.get('valor_imovel')
-        proprietario_doc = request.POST.get(
-            'proprietario_documento'
-        )
+        proprietario_doc = request.POST.get('proprietario_documento')
         descricao = request.POST.get('descricao')
         usuario_id = request.POST.get('usuario')
 
+        # CAPTURA DO NÚMERO DE QUARTOS
+        quartos_input = request.POST.get('quartos', 0)
+        try:
+            quartos_val = int(quartos_input) if quartos_input else 0
+        except (ValueError, TypeError):
+            quartos_val = 0
+
         # ----------------------------------------------------------------------
-        # ENDEREÇO
+        # ENDEREÇO (Tratamento para evitar NULL em campos obrigatórios)
         # ----------------------------------------------------------------------
 
-        cep = request.POST.get('cep')
-        logradouro = request.POST.get('logradouro')
-        numero = request.POST.get('numero')
-        bairro = request.POST.get('bairro')
-        cidade = request.POST.get('cidade')
-        estado = request.POST.get('estado')
+        cep = request.POST.get('cep', '') or ''
+        logradouro = request.POST.get('logradouro', '') or ''
+        numero = request.POST.get('numero', '') or ''
+        bairro = request.POST.get('bairro', '') or ''
+        cidade = request.POST.get('cidade', '') or ''
+        estado = request.POST.get('estado', '') or ''
 
         # ----------------------------------------------------------------------
         # FOTOS
         # ----------------------------------------------------------------------
 
-        foto_principal = request.FILES.get(
-            'foto_principal'
-        )
-
-        fotos_galeria = request.FILES.getlist(
-            'fotos_galeria'
-        )
+        foto_principal = request.FILES.get('foto_principal')
+        fotos_galeria = request.FILES.getlist('fotos_galeria')
 
         # ----------------------------------------------------------------------
         # CONVERSÃO DO VALOR
@@ -194,7 +191,6 @@ def cadastro_imoveis_view(request, pk=None):
 
         try:
             if valor_da_tela:
-
                 valor_limpo = (
                     str(valor_da_tela)
                     .replace('R$', '')
@@ -202,12 +198,9 @@ def cadastro_imoveis_view(request, pk=None):
                     .replace(',', '.')
                     .strip()
                 )
-
                 valor_final = float(valor_limpo)
-
             else:
                 valor_final = 0.00
-
         except (ValueError, TypeError):
             valor_final = 0.00
 
@@ -231,12 +224,13 @@ def cadastro_imoveis_view(request, pk=None):
 
         if imovel:
 
-            imovel.nome = f"{tipo} - {logradouro}, {numero}"
+            imovel.nome = f"{tipo} {logradouro}, {numero}".strip()
             imovel.referencia = referencia
             imovel.valor_original = valor_final
             imovel.status = status
             imovel.proprietario_documento = proprietario_doc
             imovel.descricao = descricao
+            imovel.quartos = quartos_val
 
             if responsavel_usuario:
                 imovel.user = responsavel_usuario
@@ -246,10 +240,7 @@ def cadastro_imoveis_view(request, pk=None):
 
             imovel.save()
 
-            # --------------------------------------------------------------
             # Atualiza/cria endereço
-            # --------------------------------------------------------------
-
             endereco, _ = EnderecoImovel.objects.get_or_create(
                 imovel=imovel
             )
@@ -274,16 +265,11 @@ def cadastro_imoveis_view(request, pk=None):
 
         else:
 
-            nome_imovel = f"{tipo} - {logradouro}, {numero}"
-
+            nome_imovel = f"{tipo} {logradouro}, {numero}".strip()
             tipo_norm = tipo.lower()
 
-            # ==================================================================
             # SALA COMERCIAL
-            # ==================================================================
-
             if 'sala' in tipo_norm:
-
                 novo_imovel = SalaComercial.objects.create(
                     nome=nome_imovel,
                     referencia=referencia,
@@ -293,15 +279,12 @@ def cadastro_imoveis_view(request, pk=None):
                     descricao=descricao,
                     user=responsavel_usuario,
                     foto_principal=foto_principal,
+                    quartos=quartos_val,
                     area_util=50.0
                 )
 
-            # ==================================================================
             # GALPÃO COMERCIAL
-            # ==================================================================
-
             elif 'galp' in tipo_norm:
-
                 novo_imovel = GalpaoComercial.objects.create(
                     nome=nome_imovel,
                     referencia=referencia,
@@ -311,51 +294,22 @@ def cadastro_imoveis_view(request, pk=None):
                     descricao=descricao,
                     user=responsavel_usuario,
                     foto_principal=foto_principal,
+                    quartos=quartos_val,
                     area_util=200.0
                 )
 
-            # ==================================================================
             # APARTAMENTO
-            # ==================================================================
-
-            elif (
-                'apartamento' in tipo_norm
-                or 'apto' in tipo_norm
-            ):
-
-                area_util_val = (
-                    request.POST.get('area_util')
-                    or 0.0
-                )
-
-                num_dorm_val = (
-                    request.POST.get('numero_dormitorios')
-                    or 0
-                )
-
-                num_suites_val = (
-                    request.POST.get('numero_suites')
-                    or 0
-                )
+            elif 'apartamento' in tipo_norm or 'apto' in tipo_norm:
+                area_util_val = request.POST.get('area_util') or 0.0
+                num_suites_val = request.POST.get('numero_suites') or 0
 
                 try:
-                    area_util_val = float(
-                        area_util_val
-                    )
+                    area_util_val = float(area_util_val)
                 except (ValueError, TypeError):
                     area_util_val = 0.0
 
                 try:
-                    num_dorm_val = int(
-                        num_dorm_val
-                    )
-                except (ValueError, TypeError):
-                    num_dorm_val = 0
-
-                try:
-                    num_suites_val = int(
-                        num_suites_val
-                    )
+                    num_suites_val = int(num_suites_val)
                 except (ValueError, TypeError):
                     num_suites_val = 0
 
@@ -368,17 +322,14 @@ def cadastro_imoveis_view(request, pk=None):
                     descricao=descricao,
                     user=responsavel_usuario,
                     foto_principal=foto_principal,
+                    quartos=quartos_val,
                     area_util=area_util_val,
-                    numero_dormitorios=num_dorm_val,
+                    numero_dormitorios=quartos_val,
                     numero_suites=num_suites_val
                 )
 
-            # ==================================================================
             # TERRENO
-            # ==================================================================
-
             elif 'terreno' in tipo_norm:
-
                 novo_imovel = Terreno.objects.create(
                     nome=nome_imovel,
                     referencia=referencia,
@@ -388,18 +339,12 @@ def cadastro_imoveis_view(request, pk=None):
                     descricao=descricao,
                     user=responsavel_usuario,
                     foto_principal=foto_principal,
+                    quartos=quartos_val,
                     metragem=300.0
                 )
 
-            # ==================================================================
             # SÍTIO
-            # ==================================================================
-
-            elif (
-                'sitio' in tipo_norm
-                or 'sítio' in tipo_norm
-            ):
-
+            elif 'sitio' in tipo_norm or 'sítio' in tipo_norm:
                 novo_imovel = Sitio.objects.create(
                     nome=nome_imovel,
                     referencia=referencia,
@@ -409,24 +354,13 @@ def cadastro_imoveis_view(request, pk=None):
                     descricao=descricao,
                     user=responsavel_usuario,
                     foto_principal=foto_principal,
-
-                    # IMPORTANTE:
-                    # Sitio possui "area_total", não "area_terreno"
+                    quartos=quartos_val,
                     area_total=1000.0,
-
-                    # Campo obrigatório do modelo Sitio
                     benfeitorias=''
                 )
 
-            # ==================================================================
             # CHÁCARA
-            # ==================================================================
-
-            elif (
-                'chacara' in tipo_norm
-                or 'chácara' in tipo_norm
-            ):
-
+            elif 'chacara' in tipo_norm or 'chácara' in tipo_norm:
                 novo_imovel = Chacara.objects.create(
                     nome=nome_imovel,
                     referencia=referencia,
@@ -436,72 +370,30 @@ def cadastro_imoveis_view(request, pk=None):
                     descricao=descricao,
                     user=responsavel_usuario,
                     foto_principal=foto_principal,
-
-                    # Campos do modelo Chacara
+                    quartos=quartos_val,
                     area_total=1000.0,
                     area_construida=100.0,
                     numero_casas=1
                 )
 
-            # ==================================================================
             # CASA
-            # ==================================================================
-
             elif 'casa' in tipo_norm:
-
-                area_terreno_val = (
-                    request.POST.get(
-                        'area_terreno'
-                    )
-                    or 200.0
-                )
-
-                area_construcao_val = (
-                    request.POST.get(
-                        'area_construcao'
-                    )
-                    or 100.0
-                )
-
-                num_dorm_val = (
-                    request.POST.get(
-                        'numero_dormitorios'
-                    )
-                    or 2
-                )
-
-                num_suites_val = (
-                    request.POST.get(
-                        'numero_suites'
-                    )
-                    or 0
-                )
+                area_terreno_val = request.POST.get('area_terreno') or 200.0
+                area_construcao_val = request.POST.get('area_construcao') or 100.0
+                num_suites_val = request.POST.get('numero_suites') or 0
 
                 try:
-                    area_terreno_val = float(
-                        area_terreno_val
-                    )
+                    area_terreno_val = float(area_terreno_val)
                 except (ValueError, TypeError):
                     area_terreno_val = 200.0
 
                 try:
-                    area_construcao_val = float(
-                        area_construcao_val
-                    )
+                    area_construcao_val = float(area_construcao_val)
                 except (ValueError, TypeError):
                     area_construcao_val = 100.0
 
                 try:
-                    num_dorm_val = int(
-                        num_dorm_val
-                    )
-                except (ValueError, TypeError):
-                    num_dorm_val = 2
-
-                try:
-                    num_suites_val = int(
-                        num_suites_val
-                    )
+                    num_suites_val = int(num_suites_val)
                 except (ValueError, TypeError):
                     num_suites_val = 0
 
@@ -514,18 +406,15 @@ def cadastro_imoveis_view(request, pk=None):
                     descricao=descricao,
                     user=responsavel_usuario,
                     foto_principal=foto_principal,
+                    quartos=quartos_val,
                     area_terreno=area_terreno_val,
                     area_construcao=area_construcao_val,
-                    numero_dormitorios=num_dorm_val,
+                    numero_dormitorios=quartos_val,
                     numero_suites=num_suites_val
                 )
 
-            # ==================================================================
             # IMÓVEL GENÉRICO
-            # ==================================================================
-
             else:
-
                 novo_imovel = Imovel.objects.create(
                     nome=nome_imovel,
                     referencia=referencia,
@@ -534,13 +423,11 @@ def cadastro_imoveis_view(request, pk=None):
                     proprietario_documento=proprietario_doc,
                     descricao=descricao,
                     user=responsavel_usuario,
-                    foto_principal=foto_principal
+                    foto_principal=foto_principal,
+                    quartos=quartos_val
                 )
 
-            # ==================================================================
             # ENDEREÇO DO IMÓVEL
-            # ==================================================================
-
             EnderecoImovel.objects.create(
                 cep=cep,
                 logradouro=logradouro,
@@ -551,12 +438,8 @@ def cadastro_imoveis_view(request, pk=None):
                 imovel=novo_imovel
             )
 
-            # ==================================================================
             # GALERIA DE FOTOS
-            # ==================================================================
-
             for foto in fotos_galeria:
-
                 FotosImovel.objects.create(
                     imovel=novo_imovel,
                     caminho=foto
@@ -569,10 +452,7 @@ def cadastro_imoveis_view(request, pk=None):
 
         return redirect('buscar_imoveis')
 
-    # --------------------------------------------------------------------------
     # GET
-    # --------------------------------------------------------------------------
-
     todos_usuarios = Usuario.objects.all()
 
     return render(
@@ -589,7 +469,6 @@ def excluir_imovel_view(request, pk):
     """
     Remove um imóvel do catálogo.
     """
-
     imovel = get_object_or_404(
         Imovel,
         pk=pk
@@ -613,25 +492,18 @@ def cadastro_proprietario_view(request):
     """
     Cadastro de vendedores/proprietários.
     """
-
     if request.method == "POST":
-
         nome = request.POST.get('nome')
-
         username = (
             request.POST.get('username')
             or request.POST.get('email')
         )
-
         email = request.POST.get('email')
-
         senha = (
             request.POST.get('senha')
             or '123456'
         )
-
         cpf = request.POST.get('cpf')
-
         telefone_num = request.POST.get('telefone')
 
         if PessoaFisica.objects.filter(
@@ -658,7 +530,6 @@ def cadastro_proprietario_view(request):
         )
 
         if telefone_num:
-
             Telefone.objects.create(
                 usuario=novo_vendedor,
                 telefone=telefone_num
@@ -681,12 +552,10 @@ def cadastro_comprador_view(request, pk=None):
     """
     Cadastro e edição de compradores.
     """
-
     comprador = None
     telefone_str = ""
 
     if pk:
-
         comprador = get_object_or_404(
             PessoaFisica,
             pk=pk
@@ -698,7 +567,6 @@ def cadastro_comprador_view(request, pk=None):
             telefone_str = primeiro_telefone.telefone
 
     if request.method == 'POST':
-
         nome = request.POST.get('nome')
         cpf = request.POST.get('cpf')
         telefone = request.POST.get('telefone')
@@ -721,23 +589,16 @@ def cadastro_comprador_view(request, pk=None):
             else None
         )
 
-        # ----------------------------------------------------------------------
         # EDIÇÃO
-        # ----------------------------------------------------------------------
-
         if comprador:
-
             comprador.nome = nome
             comprador.cpf = cpf
-
             comprador.save()
 
             if telefone_num:
-
                 tel_obj, _ = Telefone.objects.get_or_create(
                     usuario=comprador
                 )
-
                 tel_obj.telefone = telefone_num
                 tel_obj.save()
 
@@ -746,12 +607,8 @@ def cadastro_comprador_view(request, pk=None):
                 f"Comprador {nome} atualizado com sucesso!"
             )
 
-        # ----------------------------------------------------------------------
         # CRIAÇÃO
-        # ----------------------------------------------------------------------
-
         else:
-
             username = (
                 cpf_limpo
                 if cpf_limpo
@@ -761,7 +618,6 @@ def cadastro_comprador_view(request, pk=None):
             if PessoaFisica.objects.filter(
                 username=username
             ).exists():
-
                 username = (
                     f"{username}_"
                     f"{PessoaFisica.objects.count() + 1}"
@@ -776,7 +632,6 @@ def cadastro_comprador_view(request, pk=None):
             )
 
             if telefone_num:
-
                 Telefone.objects.create(
                     usuario=novo_comprador,
                     telefone=telefone_num
@@ -787,9 +642,7 @@ def cadastro_comprador_view(request, pk=None):
                 f"Comprador {nome} cadastrado com sucesso!"
             )
 
-        return redirect(
-            'lista_compradores'
-        )
+        return redirect('lista_compradores')
 
     return render(
         request,
@@ -805,7 +658,6 @@ def lista_compradores_view(request):
     """
     Lista todos os compradores cadastrados.
     """
-
     compradores = (
         PessoaFisica.objects
         .filter(role='comprador')
@@ -825,14 +677,12 @@ def excluir_comprador_view(request, pk):
     """
     Exclui um comprador.
     """
-
     comprador = get_object_or_404(
         PessoaFisica,
         pk=pk
     )
 
     if request.method == 'POST':
-
         comprador.delete()
 
         messages.success(
@@ -840,10 +690,6 @@ def excluir_comprador_view(request, pk):
             "Comprador excluído com sucesso!"
         )
 
-        return redirect(
-            'lista_compradores'
-        )
+        return redirect('lista_compradores')
 
-    return redirect(
-        'lista_compradores'
-    )
+    return redirect('lista_compradores')

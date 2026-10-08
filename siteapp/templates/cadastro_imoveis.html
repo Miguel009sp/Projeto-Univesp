@@ -1,179 +1,81 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from core.models import (
-    Usuario, Imovel, Casa, Apartamento, 
-    Terreno, SalaComercial, GalpaoComercial, Sitio, Chacara, 
-    EnderecoImovel
-)
+<!DOCTYPE html>
+{% load static %}
+<html lang="pt-br" class="notranslate">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if imovel %}Editar Imóvel{% else %}Cadastrar Imóvel{% endif %}</title>
+    <link href="{% static 'siteapp/css/estilo.css' %}" rel="stylesheet">
+</head>
 
-# ==============================================================================
-# MÓDULO 1: AUTENTICAÇÃO E SESSÃO DO USUÁRIO
-# ==============================================================================
+<body class="notranslate form-imovel">
+    <h2>{% if imovel %}Editar Imóvel{% else %}Cadastrar Imóvel{% endif %}</h2>
 
-def login_view(request):
-    if request.method == "POST":
-        usuario_input = request.POST.get('usuario', '').strip()
-        senha_input = request.POST.get('senha', '').strip()
-        
-        user = authenticate(request, username=usuario_input, password=senha_input)
-        
-        if user is not None:
-            login(request, user)
-            return redirect('home')
-        
-        elif usuario_input == 'bragatto' and senha_input == '123456':
-            user_backup = Usuario.objects.filter(is_staff=True).first()
-            if not user_backup:
-                user_backup, _ = Usuario.objects.get_or_create(
-                    username='bragatto', 
-                    defaults={'is_staff': True, 'is_superuser': True}
-                )
-                user_backup.set_password('123456')
-                user_backup.save()
-            
-            login(request, user_backup)
-            return redirect('home')
-            
-        else:
-            return render(request, 'login.html', {'erro': 'Usuário ou senha inválidos'})
-            
-    return render(request, 'login.html')
+    <form method="post" enctype="multipart/form-data" id="form-imovel" onsubmit="limparMascarasAntesDeEnviar(event)">
+        {% csrf_token %}
 
+        <div class="form-group">
+            <label for="usuario">Responsável / Usuário</label>
+            <select name="usuario" id="usuario">
+                <option value="">-- Selecione o Usuário --</option>
+                {% for u in usuarios %}
+                    <option value="{{ u.id }}" {% if imovel and imovel.user_id == u.id %}selected{% endif %}>
+                        {{ u.nome|default:u.username }} ({% if u.role %}{{ u.get_role_display }}{% else %}Sem Role{% endif %})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
 
-def logout_view(request):
-    logout(request)
-    return redirect('login') 
+        <div class="form-group">
+            <label for="tipo_imovel">Tipo do imóvel</label>
+            <select name="tipo_imovel" id="tipo_imovel">
+                <option value="Casa" {% if imovel and "Casa" in imovel.nome %}selected{% endif %}>Casa</option>
+                <option value="Apartamento" {% if imovel and "Apartamento" in imovel.nome %}selected{% endif %}>Apartamento</option>
+                <option value="Terreno" {% if imovel and "Terreno" in imovel.nome %}selected{% endif %}>Terreno</option>
+                <option value="Sala Comercial" {% if imovel and "Sala Comercial" in imovel.nome %}selected{% endif %}>Sala Comercial</option>
+                <option value="Galpão Comercial" {% if imovel and "Galpão Comercial" in imovel.nome %}selected{% endif %}>Galpão Comercial</option>
+                <option value="Sítio" {% if imovel and "Sítio" in imovel.nome %}selected{% endif %}>Sítio</option>
+                <option value="Chácara" {% if imovel and "Chácara" in imovel.nome %}selected{% endif %}>Chácara</option>
+            </select>
+        </div>
 
+        <div class="form-group">
+            <label for="status">Status do Imóvel</label>
+            <select name="status" id="status">
+                <option value="disponivel" {% if imovel.status == "disponivel" %}selected{% endif %}>Disponível</option>
+                <option value="indisponivel" {% if imovel.status == "indisponivel" %}selected{% endif %}>Indisponível</option>
+                <option value="vendido" {% if imovel.status == "vendido" %}selected{% endif %}>Vendido</option>
+            </select>
+        </div>
 
-def home_view(request):
-    return render(request, 'home.html') 
+        <div class="form-group">
+            <label for="referencia">Número de Referência</label>
+            <input type="text" name="referencia" id="referencia" value="{{ imovel.referencia|default:'' }}" placeholder="Ex: REF1020">
+        </div>
 
-# ==============================================================================
-# MÓDULO 2: LOGÍSTICA E OPERAÇÕES DE IMÓVEIS
-# ==============================================================================
+        <!-- CAMPO ADICIONADO: NÚMERO DE QUARTOS -->
+        <div class="form-group">
+            <label for="quartos">Número de Quartos</label>
+            <input type="number" name="quartos" id="quartos" value="{{ imovel.quartos|default:'0' }}" min="0" placeholder="Ex: 3">
+        </div>
 
-def buscar_imoveis_view(request):
-    tipo_imovel = request.GET.get('tipo_imovel')
-    valor_maximo = request.GET.get('valor_maximo')
-    
-    imoveis = Imovel.objects.all().select_related('endereco')
-    
-    if tipo_imovel and tipo_imovel != "Todos":
-        imoveis = imoveis.filter(nome__icontains=tipo_imovel)
-    
-    if valor_maximo:
-        try:
-            valor_limpo = str(valor_maximo).replace('R$', '').replace('.', '').replace(',', '.').strip()
-            preco_limite = float(valor_limpo)
-            imoveis = imoveis.filter(valor_original__lte=preco_limite)
-        except ValueError:
-            pass
+        <div class="form-group">
+            <label for="valor_imovel">Valor do imóvel</label>
+            <input type="text" name="valor_imovel" id="valor_imovel" value="{{ imovel.valor_original|default:'' }}" oninput="mascaraMoeda(this)" placeholder="R$ 0,00">
+        </div>
 
-    return render(request, 'buscar_imoveis.html', {'imoveis': imoveis})
+        <div class="form-group">
+            <label for="proprietario_documento">Proprietário (CPF/CNPJ)</label>
+            <input type="text" name="proprietario_documento" id="proprietario_documento" value="{{ imovel.proprietario_documento|default:'' }}" oninput="mascaraCPFouCNPJ(this)" placeholder="000.000.000-00 ou 00.000.000/0000-00" maxlength="18">
+        </div>
 
+        <div class="form-group">
+            <label for="cep">CEP</label>
+            <input type="text" name="cep" id="cep" value="{{ imovel.endereco.cep|default:'' }}" oninput="mascaraCEP(this)" onblur="buscarEnderecoPeloCEP(this.value)">
+        </div>
 
-def cadastro_imoveis_view(request, pk=None):
-    imovel = None
-    if pk:
-        imovel = get_object_or_404(Imovel, pk=pk)
-
-    usuarios = Usuario.objects.all()
-
-    if request.method == "POST":
-        tipo = request.POST.get('tipo_imovel', '').strip()
-        status = request.POST.get('status')
-        referencia = request.POST.get('referencia')
-        valor_da_tela = request.POST.get('valor_imovel') 
-        proprietario_doc = request.POST.get('proprietario_documento')
-        descricao = request.POST.get('descricao')
-        usuario_id = request.POST.get('usuario')
-        
-        # Endereço
-        cep = request.POST.get('cep')
-        logradouro = request.POST.get('logradouro')
-        numero = request.POST.get('numero')
-        bairro = request.POST.get('bairro')
-        cidade = request.POST.get('cidade')
-        estado = request.POST.get('estado')
-
-        # Fotos
-        foto_principal = request.FILES.get('foto_principal')
-        
-        # Tratamento seguro de valores numéricos
-        try:
-            valor_final = float(str(valor_da_tela).replace('R$', '').replace('.', '').replace(',', '.').strip()) if valor_da_tela else 0.00
-        except (ValueError, TypeError):
-            valor_final = 0.00
-
-        responsavel_usuario = Usuario.objects.filter(pk=usuario_id).first() if usuario_id else None
-        nome_imovel = f"{tipo} - {logradouro}, {numero}" if logradouro else tipo
-
-        if imovel:
-            imovel.nome = nome_imovel
-            imovel.status = status
-            imovel.referencia = referencia
-            imovel.valor_original = valor_final
-            imovel.proprietario_documento = proprietario_doc
-            imovel.descricao = descricao
-            if responsavel_usuario:
-                imovel.user = responsavel_usuario
-            if foto_principal:
-                imovel.foto_principal = foto_principal
-            imovel.save()
-            
-            EnderecoImovel.objects.update_or_create(
-                imovel=imovel,
-                defaults={
-                    'cep': cep,
-                    'logradouro': logradouro,
-                    'numero': numero,
-                    'bairro': bairro,
-                    'localidade': cidade,
-                    'sigla_federacao': estado
-                }
-            )
-        else:
-            tipo_lower = tipo.lower()
-            
-            common_data = {
-                'nome': nome_imovel,
-                'status': status,
-                'referencia': referencia,
-                'valor_original': valor_final,
-                'proprietario_documento': proprietario_doc,
-                'descricao': descricao,
-                'user': responsavel_usuario,
-            }
-            if foto_principal:
-                common_data['foto_principal'] = foto_principal
-
-            # Mapeamento correto por tipo para evitar o erro de argumentos inesperados
-            if 'sítio' in tipo_lower or 'sitio' in tipo_lower:
-                novo_imovel = Sitio.objects.create(**common_data)
-            elif 'chácara' in tipo_lower or 'chacara' in tipo_lower:
-                novo_imovel = Chacara.objects.create(**common_data)
-            elif 'casa' in tipo_lower:
-                novo_imovel = Casa.objects.create(**common_data)
-            elif 'apartamento' in tipo_lower:
-                novo_imovel = Apartamento.objects.create(**common_data)
-            elif 'terreno' in tipo_lower:
-                novo_imovel = Terreno.objects.create(**common_data)
-            elif 'sala comercial' in tipo_lower:
-                novo_imovel = SalaComercial.objects.create(**common_data)
-            elif 'galpão comercial' in tipo_lower or 'galpao comercial' in tipo_lower:
-                novo_imovel = GalpaoComercial.objects.create(**common_data)
-            else:
-                novo_imovel = Imovel.objects.create(**common_data)
-
-            EnderecoImovel.objects.create(
-                imovel=novo_imovel,
-                cep=cep,
-                logradouro=logradouro,
-                numero=numero,
-                bairro=bairro,
-                localidade=cidade,
-                sigla_federacao=estado
-            )
-
-        return redirect('buscar_imoveis')
-
-    return render(request, 'cadastro_imoveis.html', {'imovel': imovel, 'usuarios': usuarios})
+        <button type="submit" class="btn-salvar">{% if imovel %}Atualizar Imóvel{% else %}Cadastrar Imóvel{% endif %}</button>
+    </form>
+</body>
+</html>

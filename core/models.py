@@ -51,6 +51,10 @@ class Imovel(models.Model):
 
     nome = models.CharField(max_length=255)
     referencia = models.CharField(max_length=50, blank=True, null=True, verbose_name="Número de Referência")
+    
+    # --- NOVO CAMPO ADICIONADO AQUI ---
+    quartos = models.IntegerField(default=0, verbose_name="Número de Quartos")
+    
     descricao = models.TextField(blank=True, null=True)
     foto_principal = models.ImageField(upload_to='imovel/main_pic', max_length=255, null=True, blank=True)
     
@@ -67,15 +71,15 @@ class Imovel(models.Model):
         return self.nome
 
 class EnderecoImovel(models.Model):
-    bairro = models.CharField(max_length=100)
-    logradouro = models.CharField(max_length=255)
-    numero = models.CharField(max_length=10)
+    bairro = models.CharField(max_length=100, blank=True, null=True)
+    logradouro = models.CharField(max_length=255, blank=True, null=True)
+    numero = models.CharField(max_length=10, blank=True, null=True)
     complemento = models.CharField(max_length=100, blank=True, null=True)
-    cep = models.CharField(max_length=9)
-    localidade = models.CharField(max_length=100)
-    sigla_federacao = models.CharField(max_length=2)
+    cep = models.CharField(max_length=9, blank=True, null=True)
+    localidade = models.CharField(max_length=100, blank=True, null=True)
+    sigla_federacao = models.CharField(max_length=2, blank=True, null=True)
     imovel = models.OneToOneField(Imovel, on_delete=models.CASCADE, related_name="endereco")
-    
+
 class FotosImovel(models.Model):
     imovel = models.ForeignKey(Imovel, on_delete=models.CASCADE, related_name="galeria")
     caminho = models.ImageField(upload_to='imoveis/galeria', max_length=255)
@@ -93,8 +97,8 @@ class Casa(Imovel):
 
 class Apartamento(Imovel):
     area_util = models.DecimalField(max_digits=10, decimal_places=2)
-    numero_dormitorios = models.IntegerField()
-    numero_suites = models.IntegerField()
+    numero_dormitorios = models.IntegerField(default=0)
+    numero_suites = models.IntegerField(default=0)
 
 class DetalhesApartamento(Apartamento):
     bloco = models.CharField(max_length=15)
@@ -134,4 +138,3 @@ class Venda(models.Model):
     data_fechamento = models.DateField(null=True, blank=True)
     observacoes = models.TextField(blank=True)
     status = models.CharField(max_length=15, choices=STATUS_VENDA, default='executando')
-    
