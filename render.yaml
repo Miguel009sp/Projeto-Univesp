@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: projeto-univesp
+    env: python
+    buildCommand: "pip install -r requirements.txt && python manage.py migrate"
+    startCommand: "gunicorn projeto.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.14
+        
