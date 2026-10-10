@@ -41,7 +41,7 @@ AUTH_USER_MODEL = 'core.Usuario'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware', # Middleware de CORS deve vir antes do Common
+    'corsheaders.middleware.CorsMiddleware',  # Middleware de CORS deve vir antes do Common
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -65,7 +65,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.media', # Necessário para fotos
+                'django.template.context_processors.media',  # Necessário para fotos
             ],
         },
     },
@@ -73,26 +73,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'projeto.wsgi.application'
 
-# --- CONFIGURAÇÃO DE BANCO DE DADOS SEGURA ---
-import dj_database_url
-
-DATABASE_URL = os.environ.get('DATABASE_URL')
-
-if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=DATABASE_URL,
-            conn_max_age=600,
-            ssl_require=True
-        )
+# --- CONFIGURAÇÃO DE BANCO DE DADOS BLINDADA ---
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
+
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    DATABASES['default'] = dj_database_url.parse(database_url, conn_max_age=600, ssl_require=True)
+
 # --- CONFIGURAÇÃO DE SESSÕES ---
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
