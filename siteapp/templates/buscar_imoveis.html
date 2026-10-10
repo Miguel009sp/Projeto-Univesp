@@ -5,21 +5,21 @@
     <meta charset="UTF-8">
     <meta name="google" content="notranslate"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buscar Imóveis</title>
+    <title>Buscar Imóveis | Bragatto Imóveis</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{% static 'siteapp/css/estilo.css' %}" rel="stylesheet">
     <style>
-        /* Só o que é específico desta página; o resto está em estilo.css */
         body {
             margin: 30px auto;
             max-width: 1200px;
             padding: 0 20px;
-            background-color: #ffffff;
+            background-color: #f8f9fa;
         }
         h2 {
             font-size: 32px;
             font-weight: 400;
-            margin-bottom: 25px;
+            color: #2c3e50;
+            margin-bottom: 0;
         }
         h4 {
             font-size: 20px;
@@ -27,12 +27,92 @@
             color: #495057;
             margin-top: 40px;
         }
+        .secao-filtros {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        .card-imovel-custom {
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+            transition: transform 0.2s;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-imovel-custom:hover {
+            transform: translateY(-4px);
+        }
+        .wrapper-foto-imovel {
+            height: 200px;
+            background-color: #e9ecef;
+            position: relative;
+        }
+        .img-card-imovel {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .card-body-custom {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .titulo-imovel a {
+            color: #2c3e50;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .titulo-imovel a:hover {
+            color: #3498db;
+        }
+        .info-endereco {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 4px;
+        }
+        .detalhes-imovel {
+            font-size: 0.85rem;
+            color: #495057;
+            background: #f1f3f5;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .preco-tag {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #27ae60;
+            margin-top: auto;
+            margin-bottom: 15px;
+        }
+        .acoes-card {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #edf2f7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .badge-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-disponivel { background: #d4edda; color: #155724; }
+        .status-indisponivel { background: #f8d7da; color: #721c24; }
+        .status-vendido { background: #cce5ff; color: #004085; }
     </style>
 </head>
 
 <body class="notranslate">
 
-    <!-- SISTEMA DE ALERTAS DE FEEDBACK FLUTUANTES -->
     {% if messages %}
         <div class="container-alertas mb-4">
             {% for message in messages %}
@@ -49,37 +129,52 @@
         </div>
     {% endif %}
 
-    <h2>Buscar Imóveis</h2>
+    <!-- CABEÇALHO COM TÍTULO E BOTÃO HOME -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Buscar Imóveis</h2>
+        <!-- Altere 'home' para o nome da URL correta da sua página inicial no urls.py se necessário -->
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary d-flex align-items-center gap-1">
+            <span aria-hidden="true">🏠</span> Home
+        </a>
+    </div>
 
+    <!-- FORMULÁRIO DE FILTROS -->
     <div class="secao-filtros mb-4">
         <form method="get" id="form-busca" class="row g-3 align-items-end">
-            <div class="col-md-5">
-                <label for="tipo_imovel" class="form-label">Tipo de imóvel</label>
+            <div class="col-md-4">
+                <label for="tipo_imovel" class="form-label">Tipo de Imóvel</label>
                 <select class="form-select" id="tipo_imovel" name="tipo_imovel">
-                    <option>Todos</option>
-                    <option {% if request.GET.tipo_imovel == 'Casa' %}selected{% endif %}>Casa</option>
-                    <option {% if request.GET.tipo_imovel == 'Apartamento' %}selected{% endif %}>Apartamento</option>
-                    <option {% if request.GET.tipo_imovel == 'Terreno' %}selected{% endif %}>Terreno</option>
-                    <option {% if request.GET.tipo_imovel == 'Comercial' %}selected{% endif %}>Comercial</option>
+                    <option value="Todos" {% if request.GET.tipo_imovel == 'Todos' or not request.GET.tipo_imovel %}selected{% endif %}>Todos</option>
+                    <option value="Casa" {% if request.GET.tipo_imovel == 'Casa' %}selected{% endif %}>Casa</option>
+                    <option value="Apartamento" {% if request.GET.tipo_imovel == 'Apartamento' %}selected{% endif %}>Apartamento</option>
+                    <option value="Terreno" {% if request.GET.tipo_imovel == 'Terreno' %}selected{% endif %}>Terreno</option>
+                    <option value="Sala Comercial" {% if request.GET.tipo_imovel == 'Sala Comercial' %}selected{% endif %}>Sala Comercial</option>
+                    <option value="Galpão" {% if request.GET.tipo_imovel == 'Galpão' %}selected{% endif %}>Galpão Comercial</option>
+                    <option value="Sítio" {% if request.GET.tipo_imovel == 'Sítio' %}selected{% endif %}>Sítio</option>
+                    <option value="Chácara" {% if request.GET.tipo_imovel == 'Chácara' %}selected{% endif %}>Chácara</option>
                 </select>
             </div>
 
-            <div class="col-md-5">
-                <label for="valor_maximo" class="form-label">Valor máximo (R$)</label>
+            <div class="col-md-3">
+                <label for="quartos" class="form-label">Mín. Quartos</label>
+                <input type="number" class="form-control" id="quartos" name="quartos" min="0" value="{{ request.GET.quartos|default:'' }}" placeholder="Ex: 2">
+            </div>
+
+            <div class="col-md-3">
+                <label for="valor_maximo" class="form-label">Valor Máximo (R$)</label>
                 <input type="text" class="form-control" id="valor_maximo" name="valor_maximo" value="{{ request.GET.valor_maximo|default:'' }}" oninput="mascaraMoeda(this)" placeholder="R$ 0,00">
             </div>
 
             <div class="col-md-2 d-flex gap-2">
-                <button type="submit" class="btn btn-primary w-100">Buscar</button>
-                <a href="{% url 'home' %}" class="btn btn-outline-secondary">Voltar</a>
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                <a href="{% url 'buscar_imoveis' %}" class="btn btn-outline-secondary">Limpar</a>
             </div>
         </form>
     </div>
 
     <h4>Resultados Encontrados</h4>
 
-    <div id="status-busca" role="status" aria-live="polite" class="text-muted mb-2" style="display: none;"></div>
-
+    <!-- LISTAGEM DE CARDS -->
     <div id="resultados-busca" class="row row-cols-1 row-cols-md-3 g-4 mt-1 mb-5" aria-live="polite">
         {% for imovel in imoveis %}
             <div class="col">
@@ -96,16 +191,29 @@
                         <h5 class="titulo-imovel">
                             <a href="{% url 'editar_imovel' imovel.pk %}" class="stretched-link">{{ imovel.nome }}</a>
                         </h5>
-                        <div class="info-endereco"><span aria-hidden="true">📍</span>
+                        <div class="info-endereco">
+                            <span aria-hidden="true">📍</span>
                             {% if imovel.endereco %}
-                                {{ imovel.endereco.logradouro }}, {{ imovel.endereco.numero }}
+                                {{ imovel.endereco.logradouro }}, {{ imovel.endereco.numero }} - {{ imovel.endereco.bairro }}
                             {% else %}
                                 Endereço não informado
                             {% endif %}
                         </div>
-                        <div class="info-endereco" style="margin-left: 18px;">
-                            {{ imovel.endereco.bairro }} - {{ imovel.endereco.localidade }}/{{ imovel.endereco.sigla_federacao }}
+                        <div class="info-endereco mb-2">
+                            {% if imovel.endereco %}
+                                {{ imovel.endereco.localidade }}/{{ imovel.endereco.sigla_federacao }}
+                            {% endif %}
                         </div>
+
+                        <div class="detalhes-imovel">
+                            <div><strong>Ref:</strong> {{ imovel.referencia|default:"Não informada" }} | <strong>Quartos:</strong> {{ imovel.quartos|default:0 }}</div>
+                            {% if imovel.descricao %}
+                                <div class="text-muted mt-1" style="font-size: 0.8rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                    {{ imovel.descricao }}
+                                </div>
+                            {% endif %}
+                        </div>
+
                         <p class="preco-tag">R$ {{ imovel.valor_original|floatformat:2 }}</p>
                     </div>
 
@@ -117,22 +225,25 @@
                             {{ imovel.status|capfirst }}
                         </span>
                         
-                        <a href="{% url 'editar_imovel' imovel.pk %}" class="btn-editar">
-                            <span aria-hidden="true">✏️</span> Editar
-                        </a>
-                        <a href="{% url 'excluir_imovel' imovel.pk %}" class="btn-excluir" onclick="return confirm('Tem certeza que deseja excluir o imóvel &quot;{{ imovel.nome|escapejs }}&quot;? Essa ação não pode ser desfeita.');">
-                            Excluir 
-                        </a>
+                        <div class="d-flex gap-2" style="position: relative; z-index: 2;">
+                            <a href="{% url 'editar_imovel' imovel.pk %}" class="btn btn-sm btn-outline-primary">
+                                <span aria-hidden="true">✏️</span> Editar
+                            </a>
+                            <a href="{% url 'excluir_imovel' imovel.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja excluir o imóvel &quot;{{ imovel.nome|escapejs }}&quot;? Essa ação não pode ser desfeita.');">
+                                Excluir
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         {% empty %}
             <div class="col-12 text-center py-5">
-                <p class="text-muted">Nenhum imóvel encontrado.</p>
+                <p class="text-muted">Nenhum imóvel encontrado com os filtros selecionados.</p>
             </div>
         {% endfor %}
     </div>
 
+    <!-- SCRIPTS JS -->
     <script>
     function mascaraMoeda(campo) {
         let valor = campo.value.replace(/\D/g, "");
@@ -141,125 +252,8 @@
         valor = valor.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
         campo.value = "R$ " + valor;
     }
-
-    // ------------------------------------------------------------------
-    // Busca de imóveis via fetch() na API interna (/api/imoveis/), sem
-    // recarregar a página. O HTML acima (renderizado pelo Django) continua
-    // sendo o resultado da primeira visita e o que aparece se o
-    // JavaScript estiver desabilitado — o fetch só entra a partir da
-    // primeira busca feita pelo usuário.
-    // ------------------------------------------------------------------
-    (function () {
-        const form = document.getElementById('form-busca');
-        const container = document.getElementById('resultados-busca');
-        const status = document.getElementById('status-busca');
-
-        function escapeHtml(texto) {
-            const div = document.createElement('div');
-            div.textContent = texto ?? '';
-            return div.innerHTML;
-        }
-
-        function formatarMoeda(valor) {
-            const numero = Number(valor);
-            if (isNaN(numero)) return '0,00';
-            return numero.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
-        function capitalizar(texto) {
-            if (!texto) return '';
-            return texto.charAt(0).toUpperCase() + texto.slice(1);
-        }
-
-        function classeStatus(statusImovel) {
-            if (statusImovel === 'disponivel') return 'status-disponivel';
-            if (statusImovel === 'indisponivel') return 'status-indisponivel';
-            return 'status-vendido';
-        }
-
-        function cardImovel(imovel) {
-            const endereco = imovel.endereco || {};
-            const enderecoLinha1 = endereco.logradouro
-                ? `${escapeHtml(endereco.logradouro)}, ${escapeHtml(endereco.numero || '')}`
-                : 'Endereço não informado';
-            const enderecoLinha2 = `${escapeHtml(endereco.bairro || '')} - ${escapeHtml(endereco.localidade || '')}/${escapeHtml(endereco.sigla_federacao || '')}`;
-            const nomeSeguro = escapeHtml(imovel.nome);
-
-            const foto = imovel.foto_principal
-                ? `<img src="${imovel.foto_principal}" class="img-card-imovel" alt="Foto de ${nomeSeguro}">`
-                : `<div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted"><span aria-hidden="true">📸</span> Sem foto</div>`;
-
-            return `
-                <div class="col">
-                    <div class="card-imovel-custom h-100">
-                        <div class="wrapper-foto-imovel">${foto}</div>
-                        <div class="card-body-custom">
-                            <h5 class="titulo-imovel">
-                                <a href="/editar-imovel/${imovel.id}/" class="stretched-link">${nomeSeguro}</a>
-                            </h5>
-                            <div class="info-endereco"><span aria-hidden="true">📍</span> ${enderecoLinha1}</div>
-                            <div class="info-endereco" style="margin-left: 18px;">${enderecoLinha2}</div>
-                            <p class="preco-tag">R$ ${formatarMoeda(imovel.valor_original)}</p>
-                        </div>
-                        <div class="acoes-card">
-                            <span class="badge-status ${classeStatus(imovel.status)}">${escapeHtml(capitalizar(imovel.status))}</span>
-                            <a href="/editar-imovel/${imovel.id}/" class="btn-editar"><span aria-hidden="true">✏️</span> Editar</a>
-                            <a href="/excluir-imovel/${imovel.id}/" class="btn-excluir"
-                               onclick="return confirm('Tem certeza que deseja excluir o imóvel &quot;${nomeSeguro}&quot;? Essa ação não pode ser desfeita.');">
-                               Excluir
-                            </a>
-                        </div>
-                    </div>
-                </div>`;
-        }
-
-        function renderizarResultados(imoveis) {
-            if (!imoveis || imoveis.length === 0) {
-                container.innerHTML = `
-                    <div class="col-12 text-center py-5">
-                        <p class="text-muted">Nenhum imóvel encontrado.</p>
-                    </div>`;
-                return;
-            }
-            container.innerHTML = imoveis.map(cardImovel).join('');
-        }
-
-        async function buscar(parametros) {
-            status.style.display = 'block';
-            status.textContent = 'Buscando imóveis...';
-
-            try {
-                const resposta = await fetch(`/api/imoveis/?${parametros.toString()}`);
-                if (!resposta.ok) {
-                    throw new Error(`Erro ${resposta.status}`);
-                }
-                const dados = await resposta.json();
-                // Suporta tanto resposta paginada ({results: [...]}) quanto lista simples
-                const imoveis = Array.isArray(dados) ? dados : (dados.results || []);
-                renderizarResultados(imoveis);
-                status.textContent = `${imoveis.length} imóvel(is) encontrado(s).`;
-            } catch (erro) {
-                status.textContent = 'Não foi possível buscar os imóveis agora. Tente novamente.';
-                console.error('Falha ao buscar imóveis na API:', erro);
-            }
-        }
-
-        form.addEventListener('submit', function (evento) {
-            evento.preventDefault();
-
-            const parametros = new URLSearchParams(new FormData(form));
-            // A URL passa a refletir a busca atual (dá pra atualizar a página ou compartilhar o link)
-            const novaUrl = `${window.location.pathname}?${parametros.toString()}`;
-            window.history.pushState({}, '', novaUrl);
-
-            buscar(parametros);
-        });
-    })();
     </script>
 
-    <!-- O botão de fechar (X) do alerta usa data-bs-dismiss, que depende do JS do Bootstrap
-    (o link de CSS acima não é suficiente). Sem esse script o botão aparecia mas não funcionava. -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

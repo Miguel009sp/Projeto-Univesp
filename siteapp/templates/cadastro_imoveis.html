@@ -5,77 +5,297 @@
     <meta charset="UTF-8">
     <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if imovel %}Editar Imóvel{% else %}Cadastrar Imóvel{% endif %}</title>
+    <title>{% if imovel %}Editar Imóvel{% else %}Cadastrar Imóvel{% endif %} | Bragatto Imóveis</title>
     <link href="{% static 'siteapp/css/estilo.css' %}" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dcdde1;
+        }
+
+        body.form-imovel {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container-form {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+
+        .form-section legend {
+            font-weight: bold;
+            color: var(--accent-color);
+            padding: 0 10px;
+            font-size: 1.1rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 240px;
+            margin-bottom: 15px;
+        }
+
+        .form-group.full-width {
+            flex: 100%;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+            outline: none;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        .btn-salvar {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-salvar:hover {
+            background-color: #219653;
+        }
+
+        @media (max-width: 600px) {
+            .container-form {
+                padding: 15px;
+            }
+        }
+    </style>
 </head>
 
 <body class="notranslate form-imovel">
-    <h2>{% if imovel %}Editar Imóvel{% else %}Cadastrar Imóvel{% endif %}</h2>
+    <div class="container-form">
+        <h2>{% if imovel %}Editar Imóvel{% else %}Cadastrar Imóvel{% endif %}</h2>
 
-    <form method="post" enctype="multipart/form-data" id="form-imovel" onsubmit="limparMascarasAntesDeEnviar(event)">
-        {% csrf_token %}
+        <form method="post" enctype="multipart/form-data" id="form-imovel">
+            {% csrf_token %}
 
-        <div class="form-group">
-            <label for="usuario">Responsável / Usuário</label>
-            <select name="usuario" id="usuario">
-                <option value="">-- Selecione o Usuário --</option>
-                {% for u in usuarios %}
-                    <option value="{{ u.id }}" {% if imovel and imovel.user_id == u.id %}selected{% endif %}>
-                        {{ u.nome|default:u.username }} ({% if u.role %}{{ u.get_role_display }}{% else %}Sem Role{% endif %})
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
+            <!-- Seção 1: Informações Gerais -->
+            <fieldset class="form-section">
+                <legend>Informações Gerais</legend>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="usuario">Responsável / Usuário</label>
+                        <select name="usuario" id="usuario">
+                            <option value="">-- Selecione o Usuário --</option>
+                            {% for u in usuarios %}
+                                <option value="{{ u.id }}" {% if imovel and imovel.user_id == u.id %}selected{% endif %}>
+                                    {{ u.nome|default:u.username }} ({% if u.role %}{{ u.get_role_display }}{% else %}Sem Role{% endif %})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-        <div class="form-group">
-            <label for="tipo_imovel">Tipo do imóvel</label>
-            <select name="tipo_imovel" id="tipo_imovel">
-                <option value="Casa" {% if imovel and "Casa" in imovel.nome %}selected{% endif %}>Casa</option>
-                <option value="Apartamento" {% if imovel and "Apartamento" in imovel.nome %}selected{% endif %}>Apartamento</option>
-                <option value="Terreno" {% if imovel and "Terreno" in imovel.nome %}selected{% endif %}>Terreno</option>
-                <option value="Sala Comercial" {% if imovel and "Sala Comercial" in imovel.nome %}selected{% endif %}>Sala Comercial</option>
-                <option value="Galpão Comercial" {% if imovel and "Galpão Comercial" in imovel.nome %}selected{% endif %}>Galpão Comercial</option>
-                <option value="Sítio" {% if imovel and "Sítio" in imovel.nome %}selected{% endif %}>Sítio</option>
-                <option value="Chácara" {% if imovel and "Chácara" in imovel.nome %}selected{% endif %}>Chácara</option>
-            </select>
-        </div>
+                    <div class="form-group">
+                        <label for="tipo_imovel">Tipo do Imóvel</label>
+                        <select name="tipo_imovel" id="tipo_imovel">
+                            <option value="Casa" {% if imovel and "Casa" in imovel.nome %}selected{% endif %}>Casa</option>
+                            <option value="Apartamento" {% if imovel and "Apartamento" in imovel.nome %}selected{% endif %}>Apartamento</option>
+                            <option value="Terreno" {% if imovel and "Terreno" in imovel.nome %}selected{% endif %}>Terreno</option>
+                            <option value="Sala Comercial" {% if imovel and "Sala Comercial" in imovel.nome %}selected{% endif %}>Sala Comercial</option>
+                            <option value="Galpão Comercial" {% if imovel and "Galpão Comercial" in imovel.nome %}selected{% endif %}>Galpão Comercial</option>
+                            <option value="Sítio" {% if imovel and "Sítio" in imovel.nome %}selected{% endif %}>Sítio</option>
+                            <option value="Chácara" {% if imovel and "Chácara" in imovel.nome %}selected{% endif %}>Chácara</option>
+                        </select>
+                    </div>
+                </div>
 
-        <div class="form-group">
-            <label for="status">Status do Imóvel</label>
-            <select name="status" id="status">
-                <option value="disponivel" {% if imovel.status == "disponivel" %}selected{% endif %}>Disponível</option>
-                <option value="indisponivel" {% if imovel.status == "indisponivel" %}selected{% endif %}>Indisponível</option>
-                <option value="vendido" {% if imovel.status == "vendido" %}selected{% endif %}>Vendido</option>
-            </select>
-        </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="status">Status do Imóvel</label>
+                        <select name="status" id="status">
+                            <option value="disponivel" {% if imovel.status == "disponivel" %}selected{% endif %}>Disponível</option>
+                            <option value="indisponivel" {% if imovel.status == "indisponivel" %}selected{% endif %}>Indisponível</option>
+                            <option value="vendido" {% if imovel.status == "vendido" %}selected{% endif %}>Vendido</option>
+                            <option value="oculto" {% if imovel.status == "oculto" %}selected{% endif %}>Oculto</option>
+                        </select>
+                    </div>
 
-        <div class="form-group">
-            <label for="referencia">Número de Referência</label>
-            <input type="text" name="referencia" id="referencia" value="{{ imovel.referencia|default:'' }}" placeholder="Ex: REF1020">
-        </div>
+                    <div class="form-group">
+                        <label for="referencia">Número de Referência</label>
+                        <input type="text" name="referencia" id="referencia" value="{{ imovel.referencia|default:'' }}" placeholder="Ex: REF1020">
+                    </div>
 
-        <!-- CAMPO ADICIONADO: NÚMERO DE QUARTOS -->
-        <div class="form-group">
-            <label for="quartos">Número de Quartos</label>
-            <input type="number" name="quartos" id="quartos" value="{{ imovel.quartos|default:'0' }}" min="0" placeholder="Ex: 3">
-        </div>
+                    <div class="form-group">
+                        <label for="quartos">Número de Quartos</label>
+                        <input type="number" name="quartos" id="quartos" value="{{ imovel.quartos|default:'0' }}" min="0" placeholder="Ex: 3">
+                    </div>
+                </div>
 
-        <div class="form-group">
-            <label for="valor_imovel">Valor do imóvel</label>
-            <input type="text" name="valor_imovel" id="valor_imovel" value="{{ imovel.valor_original|default:'' }}" oninput="mascaraMoeda(this)" placeholder="R$ 0,00">
-        </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="valor_imovel">Valor do Imóvel (R$)</label>
+                        <input type="text" name="valor_imovel" id="valor_imovel" value="{{ imovel.valor_original|default:'' }}" placeholder="R$ 0,00">
+                    </div>
 
-        <div class="form-group">
-            <label for="proprietario_documento">Proprietário (CPF/CNPJ)</label>
-            <input type="text" name="proprietario_documento" id="proprietario_documento" value="{{ imovel.proprietario_documento|default:'' }}" oninput="mascaraCPFouCNPJ(this)" placeholder="000.000.000-00 ou 00.000.000/0000-00" maxlength="18">
-        </div>
+                    <div class="form-group">
+                        <label for="proprietario_documento">Proprietário (CPF/CNPJ)</label>
+                        <input type="text" name="proprietario_documento" id="proprietario_documento" value="{{ imovel.proprietario_documento|default:'' }}" placeholder="000.000.000-00 ou CNPJ" maxlength="18">
+                    </div>
+                </div>
 
-        <div class="form-group">
-            <label for="cep">CEP</label>
-            <input type="text" name="cep" id="cep" value="{{ imovel.endereco.cep|default:'' }}" oninput="mascaraCEP(this)" onblur="buscarEnderecoPeloCEP(this.value)">
-        </div>
+                <div class="form-group full-width">
+                    <label for="descricao">Descrição do Imóvel</label>
+                    <textarea name="descricao" id="descricao" placeholder="Detalhes, diferenciais e informações gerais sobre o imóvel...">{{ imovel.descricao|default:'' }}</textarea>
+                </div>
+            </fieldset>
 
-        <button type="submit" class="btn-salvar">{% if imovel %}Atualizar Imóvel{% else %}Cadastrar Imóvel{% endif %}</button>
-    </form>
+            <!-- Seção 2: Endereço -->
+            <fieldset class="form-section">
+                <legend>Endereço</legend>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cep">CEP</label>
+                        <input type="text" name="cep" id="cep" value="{{ imovel.endereco.cep|default:'' }}" placeholder="00000-000" maxlength="9">
+                    </div>
+                    <div class="form-group" style="flex: 2;">
+                        <label for="logradouro">Logradouro (Rua, Avenida, etc.)</label>
+                        <input type="text" name="logradouro" id="logradouro" value="{{ imovel.endereco.logradouro|default:'' }}">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="numero">Número</label>
+                        <input type="text" name="numero" id="numero" value="{{ imovel.endereco.numero|default:'' }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="bairro">Bairro</label>
+                        <input type="text" name="bairro" id="bairro" value="{{ imovel.endereco.bairro|default:'' }}">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="flex: 2;">
+                        <label for="cidade">Cidade</label>
+                        <input type="text" name="cidade" id="cidade" value="{{ imovel.endereco.localidade|default:'' }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="estado">Estado (UF)</label>
+                        <input type="text" name="estado" id="estado" value="{{ imovel.endereco.sigla_federacao|default:'' }}" maxlength="2">
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- Seção 3: Fotos -->
+            <fieldset class="form-section">
+                <legend>Mídia / Fotos</legend>
+                
+                <div class="form-group full-width">
+                    <label for="foto_principal">Foto Principal</label>
+                    <input type="file" name="foto_principal" id="foto_principal" accept="image/*">
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="fotos_galeria">Fotos Adicionais (Galeria)</label>
+                    <input type="file" name="fotos_galeria" id="fotos_galeria" accept="image/*" multiple>
+                </div>
+            </fieldset>
+
+            <button type="submit" class="btn-salvar">{% if imovel %}Atualizar Imóvel{% else %}Cadastrar Imóvel{% endif %}</button>
+        </form>
+    </div>
+
+    <!-- Script de Consulta ViaCEP -->
+    <script>
+        document.getElementById('cep').addEventListener('blur', function() {
+            let cep = this.value.replace(/\D/g, '');
+            
+            if (cep.length === 8) {
+                fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.erro) {
+                            document.getElementById('logradouro').value = data.logradouro || '';
+                            document.getElementById('bairro').value = data.bairro || '';
+                            document.getElementById('cidade').value = data.localidade || '';
+                            document.getElementById('estado').value = data.uf || '';
+                            // Foca automaticamente no campo número após preencher o endereço
+                            document.getElementById('numero').focus();
+                        } else {
+                            alert('CEP não encontrado na base dos Correios/ViaCEP.');
+                        }
+                    })
+                    .catch(error => console.error('Erro ao buscar o CEP:', error));
+            }
+        });
+    </script>
 </body>
 </html>

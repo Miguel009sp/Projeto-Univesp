@@ -51,17 +51,11 @@ class Imovel(models.Model):
 
     nome = models.CharField(max_length=255)
     referencia = models.CharField(max_length=50, blank=True, null=True, verbose_name="Número de Referência")
-    
-    # --- NOVO CAMPO ADICIONADO AQUI ---
     quartos = models.IntegerField(default=0, verbose_name="Número de Quartos")
-    
     descricao = models.TextField(blank=True, null=True)
     foto_principal = models.ImageField(upload_to='imovel/main_pic', max_length=255, null=True, blank=True)
     
-    # Representa o dono do imóvel (Usuário do sistema)
     user = models.ForeignKey(Usuario, on_delete=models.CASCADE) 
-    
-    # Campo para salvar o CPF/CNPJ digitado no cadastro/edição
     proprietario_documento = models.CharField(max_length=18, null=True, blank=True)
     
     valor_original = models.FloatField(null=True, blank=True)

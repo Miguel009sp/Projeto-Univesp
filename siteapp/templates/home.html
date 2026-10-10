@@ -38,11 +38,13 @@
         {% if messages %}
         <div class="row justify-content-center mb-4">
             <div class="col-md-10">
-                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert"
+                {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show border-0 shadow-sm mb-2" role="alert"
                     style="background-color: #d1e7dd; color: #0f5132; font-weight: 500;">
-                    ✨ {{ messages|last }}
+                    ✨ {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
                 </div>
+                {% endfor %}
             </div>
         </div>
         {% endif %}

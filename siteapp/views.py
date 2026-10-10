@@ -1,9 +1,9 @@
-
 import re
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.db.models import Q
 
 from core.models import (
     Usuario,
@@ -20,7 +20,6 @@ from core.models import (
     FotosImovel,
     EnderecoImovel
 )
-
 
 # ==============================================================================
 # MÓDULO 1: AUTENTICAÇÃO E SESSÃO DO USUÁRIO
@@ -73,7 +72,6 @@ def login_view(request):
 
     return render(request, 'login.html')
 
-
 def logout_view(request):
     """
     Encerra a sessão ativa.
@@ -81,13 +79,11 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
-
 def home_view(request):
     """
     Renderiza o Dashboard Administrativo.
     """
     return render(request, 'home.html')
-
 
 # ==============================================================================
 # MÓDULO 2: LOGÍSTICA E OPERAÇÕES DE IMÓVEIS
@@ -95,9 +91,10 @@ def home_view(request):
 
 def buscar_imoveis_view(request):
     """
-    Painel de consulta de imóveis.
+    Painel de consulta de imóveis com filtros de tipo, quartos e valor máximo.
     """
     tipo_imovel = request.GET.get('tipo_imovel')
+    quartos = request.GET.get('quartos')
     valor_maximo = request.GET.get('valor_maximo')
 
     imoveis = Imovel.objects.all().select_related('endereco')
@@ -107,21 +104,33 @@ def buscar_imoveis_view(request):
             nome__icontains=tipo_imovel
         )
 
+    # Filtro robusto de quartos considerando a herança multi-tabela
+    if quartos and quartos.isdigit():
+        qtd_quartos = int(quartos)
+        if qtd_quartos > 0:
+            imoveis = imoveis.filter(
+                Q(quartos__gte=qtd_quartos) |
+                Q(casa__numero_dormitorios__gte=qtd_quartos) |
+                Q(apartamento__numero_dormitorios__gte=qtd_quartos)
+            )
+
     if valor_maximo:
         try:
             valor_limpo = (
                 str(valor_maximo)
                 .replace('R$', '')
+                .replace(' ', '')
                 .replace('.', '')
                 .replace(',', '.')
                 .strip()
             )
 
-            preco_limite = float(valor_limpo)
-
-            imoveis = imoveis.filter(
-                valor_original__lte=preco_limite
-            )
+            if valor_limpo != "" and valor_limpo != "0" and valor_limpo != "0.00":
+                preco_limite = float(valor_limpo)
+                if preco_limite > 0:
+                    imoveis = imoveis.filter(
+                        valor_original__lte=preco_limite
+                    )
 
         except (ValueError, TypeError):
             pass
@@ -131,7 +140,6 @@ def buscar_imoveis_view(request):
         'buscar_imoveis.html',
         {'imoveis': imoveis}
     )
-
 
 def cadastro_imoveis_view(request, pk=None):
     """
@@ -194,11 +202,14 @@ def cadastro_imoveis_view(request, pk=None):
                 valor_limpo = (
                     str(valor_da_tela)
                     .replace('R$', '')
+                    .replace(' ', '')
                     .replace('.', '')
                     .replace(',', '.')
                     .strip()
                 )
                 valor_final = float(valor_limpo)
+                if valor_final > 999999999.99:
+                    valor_final = 999999999.99
             else:
                 valor_final = 0.00
         except (ValueError, TypeError):
@@ -464,7 +475,6 @@ def cadastro_imoveis_view(request, pk=None):
         }
     )
 
-
 def excluir_imovel_view(request, pk):
     """
     Remove um imóvel do catálogo.
@@ -483,7 +493,6 @@ def excluir_imovel_view(request, pk):
 
     return redirect('buscar_imoveis')
 
-
 # ==============================================================================
 # MÓDULO 3: GESTÃO DE CLIENTES
 # ==============================================================================
@@ -494,40 +503,32 @@ def cadastro_proprietario_view(request):
     """
     if request.method == "POST":
         nome = request.POST.get('nome')
-        username = (
-            request.POST.get('username')
-            or request.POST.get('email')
-        )
-        email = request.POST.get('email')
-        senha = (
-            request.POST.get('senha')
-            or '123456'
-        )
         cpf = request.POST.get('cpf')
         telefone_num = request.POST.get('telefone')
+        senha = request.POST.get('senha') or '123456'
 
-        if PessoaFisica.objects.filter(
-            username=username
-        ).exists():
+        # Limpeza do CPF para gerar o username automaticamente
+        cpf_limpo = re.sub(r'\D', '', cpf) if cpf else ''
+        username = cpf_limpo if cpf_limpo else f"prop_{PessoaFisica.objects.count() + 1}"
 
+        if PessoaFisica.objects.filter(username=username).exists():
             messages.error(
                 request,
-                "Este nome de usuário ou e-mail já está cadastrado."
+                "Este CPF ou nome de usuário já está cadastrado."
             )
-
             return render(
                 request,
                 'cadastro_proprietario.html'
             )
 
-        novo_vendedor = PessoaFisica.objects.create_user(
+        novo_vendedor = PessoaFisica(
             username=username,
-            email=email,
-            password=senha,
             nome=nome,
             cpf=cpf,
             role='corretor'
         )
+        novo_vendedor.set_password(senha)
+        novo_vendedor.save()
 
         if telefone_num:
             Telefone.objects.create(
@@ -546,7 +547,6 @@ def cadastro_proprietario_view(request):
         request,
         'cadastro_proprietario.html'
     )
-
 
 def cadastro_comprador_view(request, pk=None):
     """
@@ -615,21 +615,29 @@ def cadastro_comprador_view(request, pk=None):
                 else f"comprador_{PessoaFisica.objects.count() + 1}"
             )
 
-            if PessoaFisica.objects.filter(
-                username=username
-            ).exists():
-                username = (
-                    f"{username}_"
-                    f"{PessoaFisica.objects.count() + 1}"
+            # Validação para evitar duplicidade de CPF / Username
+            if PessoaFisica.objects.filter(Q(username=username) | Q(cpf=cpf)).exists():
+                messages.error(
+                    request,
+                    "Já existe um cadastro com este CPF."
+                )
+                return render(
+                    request,
+                    'cadastro_comprador.html',
+                    {
+                        'comprador': comprador,
+                        'telefone_str': telefone_str
+                    }
                 )
 
-            novo_comprador = PessoaFisica.objects.create_user(
+            novo_comprador = PessoaFisica(
                 username=username,
-                password=senha,
                 nome=nome,
                 cpf=cpf,
                 role='comprador'
             )
+            novo_comprador.set_password(senha)
+            novo_comprador.save()
 
             if telefone_num:
                 Telefone.objects.create(
@@ -653,7 +661,6 @@ def cadastro_comprador_view(request, pk=None):
         }
     )
 
-
 def lista_compradores_view(request):
     """
     Lista todos os compradores cadastrados.
@@ -671,7 +678,6 @@ def lista_compradores_view(request):
             'compradores': compradores
         }
     )
-
 
 def excluir_comprador_view(request, pk):
     """
