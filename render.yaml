@@ -2,7 +2,7 @@ services:
   - type: web
     name: projeto-univesp
     env: python
-    buildCommand: "pip install -r requirements.txt && python manage.py migrate"
+    buildCommand: "pip install --upgrade pip && pip install -r requirements.txt && python manage.py migrate --noinput"
     startCommand: "gunicorn projeto.wsgi:application"
     envVars:
       - key: PYTHON_VERSION
