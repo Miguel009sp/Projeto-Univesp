@@ -23,4 +23,7 @@ urlpatterns = [
 
     # Gestão de Proprietários
     path('cadastro-proprietario/', views.cadastro_proprietario_view, name='cadastro_proprietario'),
+    path('buscar-proprietario/', views.buscar_proprietario, name='buscar_proprietario'),
+    path('home/', views.home_view, name='home'),
+    path('painel/', views.home_view, name='painel'),
 ]

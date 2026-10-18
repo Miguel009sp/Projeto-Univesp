@@ -548,6 +548,28 @@ def cadastro_proprietario_view(request):
         'cadastro_proprietario.html'
     )
 
+
+def buscar_proprietario(request):
+    """
+    Pesquisa de proprietários cadastrados com base no nome ou CPF.
+    """
+    query = request.GET.get('q', '').strip()
+    
+    # Filtra por role de proprietário/corretor ou traz todos se preferir, 
+    # ajustando conforme a lógica do seu modelo PessoaFisica.
+    proprietarios = PessoaFisica.objects.filter(role='corretor').prefetch_related('telefones')
+
+    if query:
+        proprietarios = proprietarios.filter(
+            Q(nome__icontains=query) | Q(cpf__icontains=query)
+        )
+
+    context = {
+        'proprietarios': proprietarios,
+    }
+    return render(request, 'buscar_proprietario.html', context)
+
+
 def cadastro_comprador_view(request, pk=None):
     """
     Cadastro e edição de compradores.
