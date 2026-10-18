@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="pt-br" class="notranslate">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bragatto Imóveis - Buscar Proprietário</title>
+    <!-- Bootstrap Oficial -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&display=swap" rel="stylesheet">
+    <link href="{% static 'siteapp/css/estilo.css' %}" rel="stylesheet">
+</head>
+
+<body class="d-flex flex-column min-vh-100 pagina-home">
+
+    <!-- BARRA DE NAVEGAÇÃO -->
+    <nav class="navbar navbar-topo navbar-dark p-3">
+        <div class="container position-relative d-flex justify-content-between align-items-center">
+            <a href="{% url 'painel' %}" class="marca-home d-flex align-items-center text-decoration-none">
+                <span class="marca-selo" aria-hidden="true">🏠</span>
+                Bragatto Imóveis
+            </a>
+            <div class="d-flex gap-2">
+                <a href="{% url 'painel' %}" class="btn btn-outline-light btn-sm fw-bold px-3">← Voltar ao Painel</a>
+                <a href="{% url 'logout' %}" class="btn btn-light btn-sm fw-bold px-3">Sair</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="flex-fill container my-5">
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-10 text-center">
+                <h2>Busca de Proprietários</h2>
+                <p class="text-muted">Consulte os proprietários cadastrados no sistema por nome ou CPF.</p>
+                <div class="linha-dourada mx-auto" aria-hidden="true"></div>
+            </div>
+        </div>
+
+        <!-- FORMULÁRIO DE FILTRO -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-10">
+                <div class="card border-0 shadow-sm p-4" style="background-color: #f8f9fa; border-radius: 12px;">
+                    <form method="GET" action="" class="row g-3">
+                        <div class="col-md-9">
+                            <label for="q" class="form-label fw-bold">Pesquisar por Nome ou CPF</label>
+                            <input type="text" class="form-control" id="q" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Digite o nome ou CPF do proprietário...">
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-premium w-100">Pesquisar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTADOS DA BUSCA -->
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card border-0 shadow-sm p-4" style="border-radius: 12px;">
+                    <h4 class="mb-3">Proprietários Encontrados</h4>
+                    
+                    {% if proprietarios %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>CPF</th>
+                                    <th>Telefone</th>
+                                    <th>E-mail</th>
+                                    <th class="text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in proprietarios %}
+                                <tr>
+                                    <td class="fw-bold">{{ p.nome }}</td>
+                                    <td>{{ p.cpf }}</td>
+                                    <td>{{ p.telefone|default:"Não informado" }}</td>
+                                    <td>{{ p.email|default:"Não informado" }}</td>
+                                    <td class="text-center">
+                                        <!-- Ajuste as URLs conforme as rotas do seu projeto Django -->
+                                        <a href="#" class="btn btn-sm btn-outline-secondary me-1">Editar</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info text-center m-0" role="alert">
+                        Nenhum proprietário encontrado com os critérios informados.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-3 mt-auto">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap">
+            <span>© 2026 Bragatto Imóveis</span>
+            <span>Desenvolvido por: Grupo PI - Univesp</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
