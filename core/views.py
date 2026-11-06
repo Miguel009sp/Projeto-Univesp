@@ -6,9 +6,12 @@ from django.views.decorators.http import require_POST
 from django.db.models import Q
 from rest_framework.generics import ListCreateAPIView, ListAPIView
 from rest_framework import viewsets
+from django.shortcuts import render
 
 from .models import *
 from .serializers import *
+
+from .queries import vendas_por_mes, vendas_por_status
 
 
 # ==============================================================================
@@ -531,7 +534,26 @@ def excluir_comprador_view(request, pk):
     messages.success(request, "Comprador excluído com sucesso!")
     return redirect('home')
 
-# For testing
+# dashboard vendas
+def dashboard_vendas(request):
+    por_mes = list(vendas_por_mes())
+    por_status = list(vendas_por_status())
+
+    context = {
+        "grafico_mensal": {
+            "labels": [d["mes"].strftime("%m/%Y") for d in por_mes],
+            "totais": [float(d["total"] or 0) for d in por_mes],
+            "quantidades": [d["quantidade"] for d in por_mes]
+        },
+        "grafico_status": {
+            "labels": [d["status"].capitalize() for d in por_status],
+            "quantidades": [d["quantidade"] for d in por_status],
+        }
+    }
+
+    return render(request, "dashboard_vendas.html", context)
+
+# testing
 class ImovelViewSet(viewsets.ModelViewSet):
     queryset = Imovel.objects.all()
     serializer_class = ImovelSerializer

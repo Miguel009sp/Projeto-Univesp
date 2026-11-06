@@ -1,0 +1,102 @@
+{% block content %}
+<div class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Dashboard de Vendas</h1>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Vendas por mês -->
+    <div class="col-12 col-lg-8">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-white">
+          <h2 class="h5 mb-0">Vendas por mês</h2>
+        </div>
+        <div class="card-body">
+          <div style="position: relative; height: 320px;">
+            <canvas id="graficoMensal"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vendas por status -->
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-white">
+          <h2 class="h5 mb-0">Vendas por status</h2>
+        </div>
+        <div class="card-body d-flex align-items-center justify-content-center">
+          <div style="position: relative; height: 320px; width: 100%;">
+            <canvas id="graficoStatus"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{{ grafico_mensal|json_script:"dados-mensal" }}
+{{ grafico_status|json_script:"dados-status" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+  const mensal = JSON.parse(document.getElementById("dados-mensal").textContent);
+  const statusData = JSON.parse(document.getElementById("dados-status").textContent);
+
+  const formatarReais = v =>
+    Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+  new Chart(document.getElementById("graficoMensal"), {
+    type: "bar",
+    data: {
+      labels: mensal.labels,
+      datasets: [{
+        label: "Total vendido (R$)",
+        data: mensal.totais,
+        backgroundColor: "rgba(13, 110, 253, 0.7)",   // azul do Bootstrap
+        borderColor: "rgb(13, 110, 253)",
+        borderWidth: 1,
+        borderRadius: 4,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => formatarReais(ctx.parsed.y) } },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { callback: formatarReais },
+        },
+      },
+    },
+  });
+
+  new Chart(document.getElementById("graficoStatus"), {
+    type: "doughnut",
+    data: {
+      labels: statusData.labels,
+      datasets: [{
+        data: statusData.quantidades,
+        backgroundColor: [
+          "rgb(25, 135, 84)",    // success
+          "rgb(220, 53, 69)",    // danger
+          "rgb(255, 193, 7)",    // warning
+          "rgb(13, 202, 240)",   // info
+        ],
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: "bottom" } },
+    },
+  });
+</script>
+{% endblock %}

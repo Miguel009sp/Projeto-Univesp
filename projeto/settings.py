@@ -74,27 +74,27 @@ TEMPLATES = [
 WSGI_APPLICATION = 'projeto.wsgi.application'
 
 # --- BANCO DE DADOS PADRÃO (SQLITE) ---
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
-# --- NEON DATABASE - COMENTAR APENAS EM AMBIENTE LOCAL ---
-# tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': tmpPostgres.path.replace('/', ''),
-#         'USER': tmpPostgres.username,
-#         'PASSWORD': tmpPostgres.password,
-#         'HOST': tmpPostgres.hostname,
-#         'PORT': 5432,
-#         'OPTIONS': dict(parse_qsl(tmpPostgres.query)),
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
+# --- NEON DATABASE - COMENTAR APENAS EM AMBIENTE LOCAL ---
+tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': tmpPostgres.path.replace('/', ''),
+        'USER': tmpPostgres.username,
+        'PASSWORD': tmpPostgres.password,
+        'HOST': tmpPostgres.hostname,
+        'PORT': 5432,
+        'OPTIONS': dict(parse_qsl(tmpPostgres.query)),
+    }
+}
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'

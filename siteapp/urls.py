@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from core.views import dashboard_vendas
 
 urlpatterns = [
     # Autenticação
@@ -26,4 +27,7 @@ urlpatterns = [
     path('buscar-proprietario/', views.buscar_proprietario, name='buscar_proprietario'),
     path('home/', views.home_view, name='home'),
     path('painel/', views.home_view, name='painel'),
+
+    # dashboard de vendas
+    path("dashboard/vendas/", dashboard_vendas, name="dashboard_vendas"),
 ]

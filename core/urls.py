@@ -13,7 +13,8 @@ from .views import (
     SitioViewSet, ChacaraViewSet, ApartamentoViewSet, VendaViewSet, FotosImovelViewSet,
     ImovelPublicoViewSet, ImovelViewSet,
     ListCreatePessoaFisica, ListCreatePessoaJuridica, ListAllUsers, ListCreateTelefone,
-    ListCreateEnderecoUsuario
+    ListCreateEnderecoUsuario,
+    dashboard_vendas
 )
 
 # Configuração do Router para os ViewSets de Imóveis da API
