@@ -530,3 +530,8 @@ def excluir_comprador_view(request, pk):
     comprador.delete()
     messages.success(request, "Comprador excluído com sucesso!")
     return redirect('home')
+
+# For testing
+class ImovelViewSet(viewsets.ModelViewSet):
+    queryset = Imovel.objects.all()
+    serializer_class = ImovelSerializer

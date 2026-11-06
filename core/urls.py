@@ -11,7 +11,7 @@ from rest_framework_simplejwt.views import (
 from .views import (
     TerrenoViewSet, CasaViewSet, SalaComercialViewSet, GalpaoComercialViewSet,
     SitioViewSet, ChacaraViewSet, ApartamentoViewSet, VendaViewSet, FotosImovelViewSet,
-    ImovelPublicoViewSet,
+    ImovelPublicoViewSet, ImovelViewSet,
     ListCreatePessoaFisica, ListCreatePessoaJuridica, ListAllUsers, ListCreateTelefone,
     ListCreateEnderecoUsuario
 )
@@ -28,6 +28,7 @@ router.register(r'apartamentos', viewset=ApartamentoViewSet, basename='apartamen
 router.register(r'imoveis', viewset=ImovelPublicoViewSet, basename='imovel')
 router.register(r'vendas', viewset=VendaViewSet)
 router.register(r'fotos-imovel', viewset=FotosImovelViewSet)
+router.register(r'imoveis-admin', viewset=ImovelViewSet, basename='imovel-admin')
 
 urlpatterns = [   
     # --- ROTAS DA API (Sincronizadas com o prefixo 'api/' do projeto principal) ---
@@ -38,7 +39,7 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     # Endpoints de Usuários e Cadastros
-    path('pessoa-fisica/', ListCreatePessoaFisica.as_view()),
+    path('pessoa-fisica/', ListCreatePessoaFisica.as_view(), name="pessoa-fisica"),
     path('pessoa-juridica/', ListCreatePessoaJuridica.as_view()),
     path('usuarios/', ListAllUsers.as_view()),
     path('telefones/', ListCreateTelefone.as_view()),
